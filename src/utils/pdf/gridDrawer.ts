@@ -49,13 +49,8 @@ export function drawSolutionHighlights(
 ): void {
   try {
     placedWords.forEach((placedWord) => {
-      let startX = dimensions.marginInches + (placedWord.startX * dimensions.cellSize);
+      const startX = dimensions.marginInches + (placedWord.startX * dimensions.cellSize);
       const startY = dimensions.gridStartY + (placedWord.startY * dimensions.cellSize);
-
-      // Adjust start position for backwards words
-      if (placedWord.isBackwards) {
-        startX = dimensions.marginInches + ((placedWord.startX + 1) * dimensions.cellSize);
-      }
 
       drawWordHighlight(
         doc,

@@ -14,7 +14,7 @@ export const FONT_OPTIONS: FontOption[] = [
   { label: 'Verdana', value: 'verdana' }
 ];
 
-export const DIRECTIONS: Direction[] = ['horizontal', 'vertical', 'diagonal', 'backwards'];
+export const BASE_DIRECTIONS: Direction[] = ['horizontal', 'vertical', 'diagonal'];
 
 export const MIN_GRID_SIZE = 10;
 export const MAX_GRID_SIZE = 25;

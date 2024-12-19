@@ -30,16 +30,16 @@ export function generatePuzzle(config: PuzzleConfig): {
 
       while (!placed && attempts < maxAttempts) {
         try {
-          const direction = getRandomDirection(config.directions);
-          const { x, y } = getRandomPosition(size, word.length, direction);
+          const { direction, isBackwards } = getRandomDirection(config.directions, config.allowBackwards);
+          const { x, y } = getRandomPosition(size, word.length, direction, isBackwards);
           
-          if (canPlaceWord(grid, word, x, y, direction)) {
-            const { isBackwards } = placeWord(grid, word, x, y, direction, wordIndex);
+          if (canPlaceWord(grid, word, x, y, direction, isBackwards)) {
+            placeWord(grid, word, x, y, direction, isBackwards, wordIndex);
             placedWords.push({
               word,
               startX: x,
               startY: y,
-              direction: isBackwards ? 'backwards' : direction,
+              direction,
               index: wordIndex,
               isBackwards
             });

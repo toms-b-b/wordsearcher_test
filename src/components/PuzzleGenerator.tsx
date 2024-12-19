@@ -4,7 +4,7 @@ import { ConfigPanel } from './ConfigPanel';
 import { PuzzlePreview } from './PuzzlePreview';
 import { useFileUpload } from '../hooks/useFileUpload';
 import { useZipDownload } from '../hooks/useZipDownload';
-import { PAGE_SIZES, FONT_OPTIONS, MIN_GRID_SIZE } from '../utils/constants';
+import { PAGE_SIZES, FONT_OPTIONS, MIN_GRID_SIZE, BASE_DIRECTIONS } from '../utils/constants';
 import { findLongestWordLength } from '../utils/wordUtils';
 import { calculateConstraints } from '../utils/constraints';
 import { validateConfig } from '../utils/validation';
@@ -18,7 +18,8 @@ export function PuzzleGenerator() {
     wordBankFontSize: 14,
     titleFontSize: 24,
     pageSize: PAGE_SIZES[0],
-    directions: ['horizontal', 'vertical', 'diagonal'],
+    directions: [...BASE_DIRECTIONS],
+    allowBackwards: false,
     gridSize: MIN_GRID_SIZE,
     font: FONT_OPTIONS[0]
   });
@@ -34,6 +35,7 @@ export function PuzzleGenerator() {
       titleFontSize: config.titleFontSize,
       pageSize: config.pageSize,
       directions: config.directions,
+      allowBackwards: config.allowBackwards,
       gridSize: config.gridSize,
       font: config.font
     })));

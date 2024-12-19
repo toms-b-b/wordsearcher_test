@@ -1,7 +1,7 @@
 import React from 'react';
 import { Upload, Download } from 'lucide-react';
-import { PAGE_SIZES, FONT_OPTIONS, DIRECTIONS } from '../utils/constants';
-import { PuzzleConfig } from '../types';
+import { PAGE_SIZES, FONT_OPTIONS, BASE_DIRECTIONS } from '../utils/constants';
+import { PuzzleConfig, Direction } from '../types';
 import { validateGridSize, validateFontSize, validateTitle } from '../utils/validation';
 import { calculateConstraints } from '../utils/constraints';
 
@@ -52,7 +52,7 @@ export function ConfigPanel({
     regeneratePuzzles();
   };
 
-  const handleDirectionChange = (direction: string) => {
+  const handleDirectionChange = (direction: Direction) => {
     const newDirections = config.directions.includes(direction)
       ? config.directions.filter(d => d !== direction)
       : [...config.directions, direction];
@@ -61,6 +61,10 @@ export function ConfigPanel({
     if (newDirections.length > 0) {
       handleConfigChange('directions', newDirections);
     }
+  };
+
+  const toggleBackwards = () => {
+    handleConfigChange('allowBackwards', !config.allowBackwards);
   };
 
   return (
@@ -101,7 +105,7 @@ export function ConfigPanel({
             Word Directions
           </label>
           <div className="flex flex-wrap gap-2">
-            {DIRECTIONS.map(direction => (
+            {BASE_DIRECTIONS.map(direction => (
               <button
                 key={direction}
                 onClick={() => handleDirectionChange(direction)}
@@ -114,6 +118,16 @@ export function ConfigPanel({
                 {direction.charAt(0).toUpperCase() + direction.slice(1)}
               </button>
             ))}
+            <button
+              onClick={toggleBackwards}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors
+                ${config.allowBackwards
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+            >
+              Backwards
+            </button>
           </div>
         </div>
 
