@@ -34,13 +34,14 @@ export function generatePuzzle(config: PuzzleConfig): {
           const { x, y } = getRandomPosition(size, word.length, direction);
           
           if (canPlaceWord(grid, word, x, y, direction)) {
-            placeWord(grid, word, x, y, direction, wordIndex);
+            const { isBackwards } = placeWord(grid, word, x, y, direction, wordIndex);
             placedWords.push({
               word,
               startX: x,
               startY: y,
-              direction,
-              index: wordIndex
+              direction: isBackwards ? 'backwards' : direction,
+              index: wordIndex,
+              isBackwards
             });
             placed = true;
           }

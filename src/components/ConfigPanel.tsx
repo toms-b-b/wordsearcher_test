@@ -1,8 +1,9 @@
 import React from 'react';
 import { Upload, Download } from 'lucide-react';
-import { PAGE_SIZES, FONT_OPTIONS } from '../utils/constants';
+import { PAGE_SIZES, FONT_OPTIONS, DIRECTIONS } from '../utils/constants';
 import { PuzzleConfig } from '../types';
-import { validateGridSize, validateFontSize } from '../utils/validation';
+import { validateGridSize, validateFontSize, validateTitle } from '../utils/validation';
+import { calculateConstraints } from '../utils/constraints';
 
 interface ConfigPanelProps {
   config: PuzzleConfig;
@@ -24,23 +25,42 @@ export function ConfigPanel({
   puzzles,
 }: ConfigPanelProps) {
   const handleConfigChange = (key: string, value: any) => {
+    const constraints = calculateConstraints(config.pageSize, config.font);
     let validatedValue = value;
     
     if (key === 'gridSize') {
-      const currentSize = config.gridSize;
-      validatedValue = validateGridSize(value, minGridSize);
-      if (validatedValue < currentSize && validatedValue === minGridSize) {
-        // If trying to decrease below minimum, keep current size
-        validatedValue = currentSize;
-      }
+      validatedValue = validateGridSize(value, minGridSize, constraints.maxGridSize);
     }
     
-    if (key === 'fontSize' || key === 'wordBankFontSize') {
-      validatedValue = validateFontSize(value);
+    if (key === 'fontSize') {
+      validatedValue = validateFontSize(value, constraints.maxFontSize, 16);
+    }
+    
+    if (key === 'wordBankFontSize') {
+      validatedValue = validateFontSize(value, constraints.maxWordBankFontSize, 14);
+    }
+    
+    if (key === 'titleFontSize') {
+      validatedValue = validateFontSize(value, constraints.maxTitleFontSize, 24);
+    }
+    
+    if (key === 'title') {
+      validatedValue = validateTitle(value);
     }
     
     setConfig({ ...config, [key]: validatedValue });
     regeneratePuzzles();
+  };
+
+  const handleDirectionChange = (direction: string) => {
+    const newDirections = config.directions.includes(direction)
+      ? config.directions.filter(d => d !== direction)
+      : [...config.directions, direction];
+
+    // Ensure at least one direction is selected
+    if (newDirections.length > 0) {
+      handleConfigChange('directions', newDirections);
+    }
   };
 
   return (
@@ -73,6 +93,27 @@ export function ConfigPanel({
                 Download All PDFs
               </button>
             )}
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Word Directions
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {DIRECTIONS.map(direction => (
+              <button
+                key={direction}
+                onClick={() => handleDirectionChange(direction)}
+                className={`px-3 py-1 rounded-md text-sm font-medium transition-colors
+                  ${config.directions.includes(direction)
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
+              >
+                {direction.charAt(0).toUpperCase() + direction.slice(1)}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -124,7 +165,7 @@ export function ConfigPanel({
             <input
               type="number"
               min={minGridSize}
-              value={config.gridSize.toString()}
+              value={config.gridSize}
               onChange={(e) => handleConfigChange('gridSize', parseInt(e.target.value, 10))}
               className="w-full px-3 py-2 border rounded-md"
             />
@@ -138,7 +179,7 @@ export function ConfigPanel({
               type="number"
               min={8}
               max={24}
-              value={config.fontSize.toString()}
+              value={config.fontSize}
               onChange={(e) => handleConfigChange('fontSize', parseInt(e.target.value, 10))}
               className="w-full px-3 py-2 border rounded-md"
             />
@@ -152,7 +193,7 @@ export function ConfigPanel({
               type="number"
               min={8}
               max={24}
-              value={config.wordBankFontSize.toString()}
+              value={config.wordBankFontSize}
               onChange={(e) => handleConfigChange('wordBankFontSize', parseInt(e.target.value, 10))}
               className="w-full px-3 py-2 border rounded-md"
             />

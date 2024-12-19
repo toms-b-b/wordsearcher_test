@@ -17,7 +17,8 @@ export function getRandomDirection(allowedDirections: Direction[]): Direction {
 export function getRandomPosition(
   size: number,
   wordLength: number,
-  direction: Direction
+  direction: Direction,
+  isBackwards: boolean = false
 ): PlacementPosition {
   let position: PlacementPosition;
   let isValid = false;
@@ -28,7 +29,7 @@ export function getRandomPosition(
     const x = Math.floor(Math.random() * size);
     const y = Math.floor(Math.random() * size);
     
-    if (validateWordPlacement(Array(wordLength).fill('A').join(''), size, direction, x, y)) {
+    if (validateWordPlacement(Array(wordLength).fill('A').join(''), size, direction, x, y, isBackwards)) {
       position = { x, y };
       isValid = true;
     }
@@ -48,21 +49,24 @@ export function canPlaceWord(
   word: string,
   startX: number,
   startY: number,
-  direction: Direction
+  direction: Direction,
+  isBackwards: boolean = false
 ): boolean {
-  if (!validateWordPlacement(word, grid.length, direction, startX, startY)) {
+  if (!validateWordPlacement(word, grid.length, direction, startX, startY, isBackwards)) {
     return false;
   }
 
   const directionVectors = {
     horizontal: { x: 1, y: 0 },
     vertical: { x: 0, y: 1 },
-    diagonal: { x: 1, y: 1 }
+    diagonal: { x: 1, y: 1 },
+    backwards: { x: -1, y: 0 }
   };
   
   const vector = directionVectors[direction];
+  const wordToPlace = isBackwards && direction === 'horizontal' ? word.split('').reverse().join('') : word;
   
-  return word.split('').every((letter, i) => {
+  return wordToPlace.split('').every((letter, i) => {
     const x = startX + (i * vector.x);
     const y = startY + (i * vector.y);
     const cell = grid[y]?.[x];
@@ -77,20 +81,25 @@ export function placeWord(
   startY: number,
   direction: Direction,
   wordIndex: number
-): void {
-  if (!canPlaceWord(grid, word, startX, startY, direction)) {
+): { isBackwards: boolean } {
+  const isBackwards = direction === 'backwards';
+  const actualDirection = isBackwards ? 'horizontal' : direction;
+  
+  if (!canPlaceWord(grid, word, startX, startY, actualDirection, isBackwards)) {
     throw new Error(`Cannot place word "${word}" at position (${startX}, ${startY})`);
   }
 
   const directionVectors = {
     horizontal: { x: 1, y: 0 },
     vertical: { x: 0, y: 1 },
-    diagonal: { x: 1, y: 1 }
+    diagonal: { x: 1, y: 1 },
+    backwards: { x: -1, y: 0 }
   };
   
-  const vector = directionVectors[direction];
+  const vector = directionVectors[actualDirection];
+  const wordToPlace = isBackwards ? word.split('').reverse().join('') : word;
   
-  word.split('').forEach((letter, i) => {
+  wordToPlace.split('').forEach((letter, i) => {
     const x = startX + (i * vector.x);
     const y = startY + (i * vector.y);
     grid[y][x] = {
@@ -100,4 +109,6 @@ export function placeWord(
       wordIndices: [...(grid[y][x]?.wordIndices || []), wordIndex]
     };
   });
+
+  return { isBackwards };
 }

@@ -57,6 +57,7 @@ export function drawWordHighlight(
   wordLength: number,
   cellSize: number,
   direction: Direction,
+  isBackwards: boolean = false
 ): void {
   doc.setDrawColor(0);
   doc.setLineWidth(LINE_WIDTH);
@@ -68,7 +69,7 @@ export function drawWordHighlight(
   switch (direction) {
     case 'horizontal': {
       const center = {
-        x: startX + (totalLength / 2),
+        x: startX + (isBackwards ? -totalLength / 2 : totalLength / 2),
         y: startY + (cellSize / 2),
       };
       const width = totalLength + (cellSize * 0.2);
