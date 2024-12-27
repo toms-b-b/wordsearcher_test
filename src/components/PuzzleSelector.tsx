@@ -22,9 +22,9 @@ export function PuzzleSelector({ puzzles, selectedPuzzle, onSelect }: PuzzleSele
         }}
         className="w-full px-3 py-2 border rounded-md"
       >
-        <option value="">Choose a puzzle...</option>
-        {puzzles.map((puzzle) => (
-          <option key={puzzle.title} value={puzzle.title}>
+        <option key="default" value="">Choose a puzzle...</option>
+        {puzzles.map((puzzle, index) => (
+          <option key={`${puzzle.title}-${index}`} value={puzzle.title}>
             {puzzle.title}
           </option>
         ))}

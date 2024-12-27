@@ -5,17 +5,19 @@ interface DirectionVector {
   y: number;
 }
 
-const DIRECTION_VECTORS: Record<Direction, (isBackwards: boolean) => DirectionVector> = {
-  horizontal: (isBackwards) => ({ x: isBackwards ? -1 : 1, y: 0 }),
-  vertical: (isBackwards) => ({ x: 0, y: isBackwards ? -1 : 1 }),
-  diagonal: (isBackwards) => ({ x: isBackwards ? -1 : 1, y: isBackwards ? -1 : 1 }),
-};
-
+// Simplified and corrected direction vectors
 export const getDirectionVector = (direction: Direction, isBackwards: boolean): DirectionVector => {
-  const vectorFn = DIRECTION_VECTORS[direction];
-  if (!vectorFn) {
-    throw new Error(`Invalid direction: ${direction}`);
+  switch (direction) {
+    case 'horizontal':
+      return { x: isBackwards ? -1 : 1, y: 0 };
+    case 'vertical':
+      return { x: 0, y: isBackwards ? -1 : 1 };
+    case 'diagonal':
+      return { 
+        x: isBackwards ? -1 : 1, 
+        y: isBackwards ? -1 : 1 
+      };
+    default:
+      throw new Error(`Invalid direction: ${direction}`);
   }
-  
-  return vectorFn(isBackwards);
 };

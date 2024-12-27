@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { PuzzleConfig } from '../types';
 import { ConfigPanel } from './ConfigPanel';
 import { PuzzlePreview } from './PuzzlePreview';
@@ -22,16 +22,15 @@ export function PuzzleGenerator() {
     pageSize: PAGE_SIZES[0],
     directions: [...BASE_DIRECTIONS],
     allowBackwards: false,
-    gridSize: 0, // Will be set based on longest word
+    gridSize: 0,
     font: FONT_OPTIONS[0]
   });
 
   const { handleFileUpload, error: uploadError } = useFileUpload(config, setPuzzles);
   const { handleDownload, error: downloadError } = useZipDownload();
 
-  const regeneratePuzzles = () => {
+  const regeneratePuzzles = useCallback(() => {
     setPuzzles(prev => prev.map(puzzle => {
-      // Calculate minimum grid size based on longest word
       const longestWord = findLongestWordLength(puzzle.words);
       const minGridSize = Math.max(longestWord + 1, config.gridSize);
 
@@ -48,12 +47,24 @@ export function PuzzleGenerator() {
       };
     }));
     setHasChanges(true);
-  };
+    // Force refresh the preview
+    setRefreshKey(prev => prev + 1);
+  }, [config]);
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     setRefreshKey(prev => prev + 1);
     setHasChanges(false);
-  };
+  }, []);
+
+  // Update selected puzzle when puzzles change
+  React.useEffect(() => {
+    if (selectedPuzzle) {
+      const updatedPuzzle = puzzles.find(p => p.title === selectedPuzzle.title);
+      if (updatedPuzzle) {
+        setSelectedPuzzle(updatedPuzzle);
+      }
+    }
+  }, [puzzles, selectedPuzzle]);
 
   return (
     <div className="container mx-auto px-4 py-8">

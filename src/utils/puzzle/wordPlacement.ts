@@ -25,11 +25,13 @@ export const canPlaceWord = (
   }
 
   const vector = getDirectionVector(direction, isBackwards);
-  const wordToPlace = isBackwards ? word.split('').reverse().join('') : word;
+  const letters = isBackwards ? word.split('').reverse() : word.split('');
   
-  return wordToPlace.split('').every((letter, i) => {
+  return letters.every((letter, i) => {
     const { x, y } = getWordPosition(startX, startY, i, vector);
     const cell = grid[y]?.[x];
+    
+    // Check if the cell exists and either is empty or has the same letter
     return cell && (cell.letter === '' || cell.letter === letter.toUpperCase());
   });
 };
@@ -48,15 +50,17 @@ export const placeWord = (
   }
 
   const vector = getDirectionVector(direction, isBackwards);
-  const wordToPlace = isBackwards ? word.split('').reverse().join('') : word;
+  const letters = isBackwards ? word.split('').reverse() : word.split('');
   
-  wordToPlace.split('').forEach((letter, i) => {
+  letters.forEach((letter, i) => {
     const { x, y } = getWordPosition(startX, startY, i, vector);
+    const currentCell = grid[y][x];
+    
     grid[y][x] = {
       letter: letter.toUpperCase(),
       isPartOfWord: true,
       position: { x, y },
-      wordIndices: [...(grid[y][x]?.wordIndices || []), wordIndex],
+      wordIndices: [...(currentCell?.wordIndices || []), wordIndex],
     };
   });
 };

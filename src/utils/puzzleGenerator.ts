@@ -22,14 +22,15 @@ export function generatePuzzle(config: PuzzleConfig): {
     // Sort words by length (longest first) for better placement
     const words = validWords.sort((a, b) => b.length - a.length);
     const placedWords: PlacedWord[] = [];
+    const maxAttempts = 100;
 
     // Try to place each word
     for (const [wordIndex, word] of words.entries()) {
       let placed = false;
       let attempts = 0;
-      const maxAttempts = 100;
 
       while (!placed && attempts < maxAttempts) {
+        // Only use selected directions
         const { direction, isBackwards } = getRandomDirection(config.directions, config.allowBackwards);
         const { x, y } = getRandomPosition(size, word.length, direction, isBackwards);
         
@@ -50,7 +51,7 @@ export function generatePuzzle(config: PuzzleConfig): {
       }
 
       if (!placed) {
-        throw new PuzzleError(`Could not place word "${word}" after ${maxAttempts} attempts`);
+        throw new PuzzleError(`Could not place word "${word}" after ${maxAttempts} attempts. Try increasing grid size or reducing word count.`);
       }
     }
 

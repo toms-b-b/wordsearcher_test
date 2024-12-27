@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { PuzzleConfig } from '../types';
 import { generatePuzzle } from '../utils/puzzleGenerator';
 import { generatePDF } from '../utils/pdf/generator';
@@ -11,7 +11,7 @@ export function PuzzlePreview({ puzzle }: PuzzlePreviewProps) {
   const [puzzleUrl, setPuzzleUrl] = useState<string>('');
   const [solutionUrl, setSolutionUrl] = useState<string>('');
 
-  useEffect(() => {
+  const generatePreview = useCallback(async () => {
     try {
       const { grid, placedWords } = generatePuzzle(puzzle);
       
@@ -34,16 +34,29 @@ export function PuzzlePreview({ puzzle }: PuzzlePreviewProps) {
       };
     } catch (error) {
       console.error('Error generating puzzle preview:', error);
-      return (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <h2 className="text-2xl font-bold mb-4 text-red-700">{puzzle.title} - Error</h2>
-          <p className="text-red-600">
-            Failed to generate puzzle preview: {error instanceof Error ? error.message : 'Unknown error'}
-          </p>
-        </div>
-      );
+      return undefined;
     }
   }, [puzzle]);
+
+  useEffect(() => {
+    let cleanup: (() => void) | undefined;
+    
+    generatePreview().then(cleanupFn => {
+      cleanup = cleanupFn;
+    });
+
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, [generatePreview]);
+
+  if (!puzzleUrl || !solutionUrl) {
+    return (
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+        <p className="text-gray-600">Generating preview...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
