@@ -39,3 +39,8 @@ export interface PuzzleConfig {
   gridSize: number;
   font: FontOption;
 }
+
+export interface CSVPuzzle {
+  title: string;
+  words: string[];
+}

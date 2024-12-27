@@ -64,6 +64,8 @@ export function ConfigPanel({
   };
 
   const toggleBackwards = () => {
+    console.log('Current allowBackwards:', config.allowBackwards);
+    console.log('Toggling to:', !config.allowBackwards);
     handleConfigChange('allowBackwards', !config.allowBackwards);
   };
 
@@ -118,16 +120,18 @@ export function ConfigPanel({
                 {direction.charAt(0).toUpperCase() + direction.slice(1)}
               </button>
             ))}
-            <button
-              onClick={toggleBackwards}
-              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors
-                ${config.allowBackwards
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-            >
-              Backwards
-            </button>
+            <label className="inline-flex items-center cursor-pointer">
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={config.allowBackwards}
+                  onChange={toggleBackwards}
+                />
+                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+              </div>
+              <span className="ms-3 text-sm font-medium text-gray-700">Backwards</span>
+            </label>
           </div>
         </div>
 

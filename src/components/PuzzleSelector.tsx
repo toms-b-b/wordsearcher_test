@@ -15,17 +15,20 @@ export function PuzzleSelector({ puzzles, selectedPuzzle, onSelect }: PuzzleSele
       </label>
       <select
         id="puzzle-select"
-        value={selectedPuzzle?.title || ''}
+        value={selectedPuzzle ? `${selectedPuzzle.title}-${puzzles.findIndex(p => p === selectedPuzzle)}` : ''}
         onChange={(e) => {
-          const puzzle = puzzles.find(p => p.title === e.target.value);
-          if (puzzle) onSelect(puzzle);
+          const [title, indexStr] = e.target.value.split('-');
+          const index = parseInt(indexStr, 10);
+          if (!isNaN(index) && index >= 0 && index < puzzles.length) {
+            onSelect(puzzles[index]);
+          }
         }}
         className="w-full px-3 py-2 border rounded-md"
       >
         <option key="default" value="">Choose a puzzle...</option>
         {puzzles.map((puzzle, index) => (
-          <option key={`${puzzle.title}-${index}`} value={puzzle.title}>
-            {puzzle.title}
+          <option key={`${puzzle.title}-${index}`} value={`${puzzle.title}-${index}`}>
+            {puzzle.title} ({index + 1})
           </option>
         ))}
       </select>

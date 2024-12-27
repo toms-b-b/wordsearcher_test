@@ -1,6 +1,7 @@
 import { PuzzleConfig, PuzzleCell, PlacedWord } from '../types';
 import { initializeGrid, fillEmptySpaces } from './puzzle/grid';
-import { getRandomDirection, getRandomPosition } from './puzzle/placement';
+import { getRandomDirection } from './puzzle/direction';
+import { getRandomPosition } from './puzzle/placement';
 import { canPlaceWord, placeWord } from './puzzle/wordPlacement';
 import { validatePuzzleWords } from './puzzle/wordValidation';
 import { PuzzleError } from './error';
@@ -30,7 +31,6 @@ export function generatePuzzle(config: PuzzleConfig): {
       let attempts = 0;
 
       while (!placed && attempts < maxAttempts) {
-        // Only use selected directions
         const { direction, isBackwards } = getRandomDirection(config.directions, config.allowBackwards);
         const { x, y } = getRandomPosition(size, word.length, direction, isBackwards);
         

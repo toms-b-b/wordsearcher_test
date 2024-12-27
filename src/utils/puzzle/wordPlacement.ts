@@ -1,6 +1,5 @@
 import { Direction, PuzzleCell } from '../../types';
 import { getDirectionVector } from './direction';
-import { validateWordPlacement } from './validation';
 
 const getWordPosition = (
   startX: number,
@@ -9,7 +8,7 @@ const getWordPosition = (
   vector: { x: number; y: number }
 ): { x: number; y: number } => ({
   x: startX + (index * vector.x),
-  y: startY + (index * vector.y),
+  y: startY + (index * vector.y)
 });
 
 export const canPlaceWord = (
@@ -20,19 +19,19 @@ export const canPlaceWord = (
   direction: Direction,
   isBackwards: boolean
 ): boolean => {
-  if (!validateWordPlacement(word, grid.length, direction, startX, startY, isBackwards)) {
-    return false;
-  }
-
   const vector = getDirectionVector(direction, isBackwards);
   const letters = isBackwards ? word.split('').reverse() : word.split('');
   
   return letters.every((letter, i) => {
     const { x, y } = getWordPosition(startX, startY, i, vector);
-    const cell = grid[y]?.[x];
     
-    // Check if the cell exists and either is empty or has the same letter
-    return cell && (cell.letter === '' || cell.letter === letter.toUpperCase());
+    // Check bounds
+    if (x < 0 || x >= grid.length || y < 0 || y >= grid.length) {
+      return false;
+    }
+    
+    const cell = grid[y][x];
+    return cell.letter === '' || cell.letter === letter.toUpperCase();
   });
 };
 
@@ -60,7 +59,7 @@ export const placeWord = (
       letter: letter.toUpperCase(),
       isPartOfWord: true,
       position: { x, y },
-      wordIndices: [...(currentCell?.wordIndices || []), wordIndex],
+      wordIndices: [...(currentCell.wordIndices || []), wordIndex],
     };
   });
 };
