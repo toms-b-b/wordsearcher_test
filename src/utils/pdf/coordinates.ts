@@ -15,33 +15,39 @@ export function calculateWordCoordinates(
   isBackwards: boolean,
   cellSize: number
 ): WordCoordinates {
-  // Adjust startX to account for cell center
+  // Adjust starting positions to cell centers
   const adjustedStartX = startX + (cellSize / 2);
   const adjustedStartY = startY + (cellSize / 2);
   
   let endX: number, endY: number;
+  const length = (wordLength - 1) * cellSize;
 
   switch (direction) {
     case 'horizontal':
       if (isBackwards) {
-        endX = adjustedStartX - ((wordLength - 1) * cellSize);
+        endX = adjustedStartX - length;
         endY = adjustedStartY;
       } else {
-        endX = adjustedStartX + ((wordLength - 1) * cellSize);
+        endX = adjustedStartX + length;
         endY = adjustedStartY;
       }
       break;
     case 'vertical':
-      endX = adjustedStartX;
-      endY = adjustedStartY + ((wordLength - 1) * cellSize);
+      if (isBackwards) {
+        endX = adjustedStartX;
+        endY = adjustedStartY - length;
+      } else {
+        endX = adjustedStartX;
+        endY = adjustedStartY + length;
+      }
       break;
     case 'diagonal':
       if (isBackwards) {
-        endX = adjustedStartX - ((wordLength - 1) * cellSize);
-        endY = adjustedStartY + ((wordLength - 1) * cellSize);
+        endX = adjustedStartX - length;
+        endY = adjustedStartY - length;
       } else {
-        endX = adjustedStartX + ((wordLength - 1) * cellSize);
-        endY = adjustedStartY + ((wordLength - 1) * cellSize);
+        endX = adjustedStartX + length;
+        endY = adjustedStartY + length;
       }
       break;
     default:

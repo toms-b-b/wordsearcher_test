@@ -1,7 +1,8 @@
 import { PuzzleConfig, PuzzleCell, PlacedWord } from '../types';
 import { initializeGrid, fillEmptySpaces } from './puzzle/grid';
-import { getRandomDirection, getRandomPosition, canPlaceWord, placeWord } from './puzzle/placement';
-import { validatePuzzleWords } from './puzzle/validation';
+import { getRandomDirection, getRandomPosition } from './puzzle/placement';
+import { canPlaceWord, placeWord } from './puzzle/wordPlacement';
+import { validatePuzzleWords } from './puzzle/wordValidation';
 import { PuzzleError } from './error';
 
 export function generatePuzzle(config: PuzzleConfig): {
@@ -29,24 +30,20 @@ export function generatePuzzle(config: PuzzleConfig): {
       const maxAttempts = 100;
 
       while (!placed && attempts < maxAttempts) {
-        try {
-          const { direction, isBackwards } = getRandomDirection(config.directions, config.allowBackwards);
-          const { x, y } = getRandomPosition(size, word.length, direction, isBackwards);
-          
-          if (canPlaceWord(grid, word, x, y, direction, isBackwards)) {
-            placeWord(grid, word, x, y, direction, isBackwards, wordIndex);
-            placedWords.push({
-              word,
-              startX: x,
-              startY: y,
-              direction,
-              index: wordIndex,
-              isBackwards
-            });
-            placed = true;
-          }
-        } catch (error) {
-          // Continue trying with different positions/directions
+        const { direction, isBackwards } = getRandomDirection(config.directions, config.allowBackwards);
+        const { x, y } = getRandomPosition(size, word.length, direction, isBackwards);
+        
+        if (canPlaceWord(grid, word, x, y, direction, isBackwards)) {
+          placeWord(grid, word, x, y, direction, isBackwards, wordIndex);
+          placedWords.push({
+            word,
+            startX: x,
+            startY: y,
+            direction,
+            index: wordIndex,
+            isBackwards
+          });
+          placed = true;
         }
         
         attempts++;
