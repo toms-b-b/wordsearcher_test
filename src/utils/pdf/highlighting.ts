@@ -15,9 +15,7 @@ interface Point {
 
 function generateRoundedRectPoints(
   coords: WordCoordinates,
-  cellSize: number,
-  direction: Direction,
-  isBackwards: boolean
+  cellSize: number
 ): Point[] {
   const points: Point[] = [];
   
@@ -138,6 +136,6 @@ export function drawWordHighlight(
     cellSize
   );
 
-  const points = generateRoundedRectPoints(coords, cellSize, direction, isBackwards);
+  const points = generateRoundedRectPoints(coords, cellSize);
   drawRoundedRect(doc, points);
 }
