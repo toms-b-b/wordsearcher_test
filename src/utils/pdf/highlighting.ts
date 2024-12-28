@@ -2,16 +2,18 @@ import { jsPDF } from 'jspdf';
 import { Direction } from '../../types';
 import { WordCoordinates, calculateWordCoordinates } from './coordinates';
 
-const LINE_WIDTH = 0.02; // Increased line width
-const OVAL_RATIO = 1.5; // Increased oval height ratio
-const STEPS = 36;
+const LINE_WIDTH = 0.02;
+const PADDING_RATIO = 1.3; // Added padding ratio for word length
+const HEIGHT_RATIO = 1.3; // Reduced height ratio (was 1.5)
+const CORNER_RADIUS = 0.1;
+const STEPS = 16;
 
 interface Point {
   x: number;
   y: number;
 }
 
-function generateOvalPoints(
+function generateRoundedRectPoints(
   coords: WordCoordinates,
   cellSize: number,
   direction: Direction,
@@ -19,56 +21,84 @@ function generateOvalPoints(
 ): Point[] {
   const points: Point[] = [];
   
-  // Adjust center point based on direction and backwards status
+  // Calculate the width with extra padding on both ends
+  const baseWidth = Math.sqrt(
+    Math.pow(coords.endX - coords.startX, 2) +
+    Math.pow(coords.endY - coords.startY, 2)
+  );
+  const width = baseWidth + (cellSize * PADDING_RATIO); // Add padding proportional to cell size
+  
+  // Reduced height relative to cell size
+  const height = cellSize * HEIGHT_RATIO;
+  
+  // Calculate angle and center
+  const dx = coords.endX - coords.startX;
+  const dy = coords.endY - coords.startY;
+  const angle = Math.atan2(dy, dx);
+  
   const center = {
     x: (coords.startX + coords.endX) / 2,
     y: (coords.startY + coords.endY) / 2
   };
 
-  // Calculate width with extra padding
-  const width = Math.sqrt(
-    Math.pow(coords.endX - coords.startX, 2) +
-    Math.pow(coords.endY - coords.startY, 2)
-  ) + (cellSize * 0.5); // Increased padding
-
-  // Adjust height based on direction
-  const height = cellSize * OVAL_RATIO;
-
-  // Calculate rotation angle based on direction and backwards status
-  let angle = Math.atan2(
-    coords.endY - coords.startY,
-    coords.endX - coords.startX
-  );
-
-  // Adjust angle for backwards placement
-  if (isBackwards) {
-    if (direction === 'vertical') {
-      angle += Math.PI;
-    } else if (direction === 'diagonal') {
-      angle += Math.PI;
+  // Ensure corner radius doesn't exceed half of the smaller dimension
+  const maxRadius = Math.min(width, height) / 2;
+  const adjustedRadius = Math.min(CORNER_RADIUS, maxRadius);
+  
+  // Generate the rounded rectangle path
+  const basePoints: Point[] = [];
+  
+  // Helper function to add corner points
+  const addCorner = (centerX: number, centerY: number, startAngle: number) => {
+    for (let i = 0; i <= STEPS; i++) {
+      const t = (i / STEPS) * (Math.PI / 2);
+      basePoints.push({
+        x: centerX + (adjustedRadius * Math.cos(startAngle + t)),
+        y: centerY + (adjustedRadius * Math.sin(startAngle + t))
+      });
     }
-  }
+  };
 
-  // Generate oval points with adjusted parameters
-  for (let i = 0; i <= STEPS; i++) {
-    const t = (i / STEPS) * 2 * Math.PI;
-    const x = (width / 2) * Math.cos(t);
-    const y = (height / 2) * Math.sin(t);
-    
-    // Apply rotation with direction-specific adjustments
-    const rotatedX = x * Math.cos(angle) - y * Math.sin(angle);
-    const rotatedY = x * Math.sin(angle) + y * Math.cos(angle);
+  // Top edge
+  basePoints.push({ x: -width/2 + adjustedRadius, y: -height/2 });
+  basePoints.push({ x: width/2 - adjustedRadius, y: -height/2 });
+  
+  // Top right corner
+  addCorner(width/2 - adjustedRadius, -height/2 + adjustedRadius, -Math.PI/2);
+  
+  // Right edge
+  basePoints.push({ x: width/2, y: height/2 - adjustedRadius });
+  
+  // Bottom right corner
+  addCorner(width/2 - adjustedRadius, height/2 - adjustedRadius, 0);
+  
+  // Bottom edge
+  basePoints.push({ x: -width/2 + adjustedRadius, y: height/2 });
+  
+  // Bottom left corner
+  addCorner(-width/2 + adjustedRadius, height/2 - adjustedRadius, Math.PI/2);
+  
+  // Left edge
+  basePoints.push({ x: -width/2, y: -height/2 + adjustedRadius });
+  
+  // Top left corner
+  addCorner(-width/2 + adjustedRadius, -height/2 + adjustedRadius, Math.PI);
+
+  // Transform points
+  basePoints.forEach(point => {
+    const rotatedX = point.x * Math.cos(angle) - point.y * Math.sin(angle);
+    const rotatedY = point.x * Math.sin(angle) + point.y * Math.cos(angle);
     
     points.push({
       x: center.x + rotatedX,
       y: center.y + rotatedY
     });
-  }
+  });
   
   return points;
 }
 
-function drawOval(doc: jsPDF, points: Point[]): void {
+function drawRoundedRect(doc: jsPDF, points: Point[]): void {
   if (points.length < 2) return;
 
   doc.setDrawColor(0);
@@ -76,12 +106,18 @@ function drawOval(doc: jsPDF, points: Point[]): void {
   doc.setLineCap('round');
   doc.setLineJoin('round');
 
-  const segments = points.slice(1).map((point, index) => {
-    const prev = points[index];
-    return [point.x - prev.x, point.y - prev.y];
-  });
-
-  doc.lines(segments, points[0].x, points[0].y);
+  // Start a new path
+  doc.lines(
+    points.slice(1).map((point, index) => {
+      const prev = points[index];
+      return [point.x - prev.x, point.y - prev.y];
+    }),
+    points[0].x,
+    points[0].y,
+    [1, 1],
+    'S',
+    true
+  );
 }
 
 export function drawWordHighlight(
@@ -102,6 +138,6 @@ export function drawWordHighlight(
     cellSize
   );
 
-  const points = generateOvalPoints(coords, cellSize, direction, isBackwards);
-  drawOval(doc, points);
+  const points = generateRoundedRectPoints(coords, cellSize, direction, isBackwards);
+  drawRoundedRect(doc, points);
 }

@@ -17,52 +17,48 @@ function drawWordHighlight(
   cellSize: number,
   direction: Direction
 ) {
-  const OVAL_RATIO = 5; // Increased for wider highlights
-  const steps = 36;
+  const PADDING = cellSize * 0.5; // Padding around the word
+  const CORNER_RADIUS = cellSize * 0.5; // Radius for rounded corners
   
-  // Calculate end coordinates based on direction
-  let endX = startX;
-  let endY = startY;
+  // Calculate dimensions based on direction
+  let width = cellSize;
+  let height = cellSize;
   
-  // Always move in the positive direction since we're using original placement positions
   switch (direction) {
     case 'horizontal':
-      endX += wordLength * cellSize;
+      width = wordLength * cellSize;
+      height = cellSize;
       break;
     case 'vertical':
-      endY += wordLength * cellSize;
+      width = cellSize;
+      height = wordLength * cellSize;
       break;
     case 'diagonal':
-      endX += wordLength * cellSize;
-      endY += wordLength * cellSize;
+      width = wordLength * cellSize;
+      height = wordLength * cellSize;
       break;
   }
 
-  // Calculate center and dimensions
-  const centerX = (startX + endX) / 2;
-  const centerY = (startY + endY) / 2;
-  const width = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)) + (cellSize * 10); // Adjusted width for better coverage
-  const height = cellSize * OVAL_RATIO; // Adjusted height
+  // Add padding to dimensions
+  width += PADDING * 2;
+  height += PADDING * 2;
   
-  // Calculate rotation angle
-  const angle = Math.atan2(endY - startY, endX - startX);
+  // Adjust start position to account for padding
+  startX -= PADDING;
+  startY -= PADDING;
 
-  // Draw oval
+  // Draw rounded rectangle
   ctx.beginPath();
-  for (let i = 0; i <= steps; i++) {
-    const t = (i / steps) * 2 * Math.PI;
-    const x = (width / 2) * Math.cos(t);
-    const y = (height / 2) * Math.sin(t);
-    
-    const rotatedX = x * Math.cos(angle) - y * Math.sin(angle);
-    const rotatedY = x * Math.sin(angle) + y * Math.cos(angle);
-    
-    if (i === 0) {
-      ctx.moveTo(centerX + rotatedX, centerY + rotatedY);
-    } else {
-      ctx.lineTo(centerX + rotatedX, centerY + rotatedY);
-    }
-  }
+  ctx.moveTo(startX + CORNER_RADIUS, startY);
+  ctx.lineTo(startX + width - CORNER_RADIUS, startY);
+  ctx.quadraticCurveTo(startX + width, startY, startX + width, startY + CORNER_RADIUS);
+  ctx.lineTo(startX + width, startY + height - CORNER_RADIUS);
+  ctx.quadraticCurveTo(startX + width, startY + height, startX + width - CORNER_RADIUS, startY + height);
+  ctx.lineTo(startX + CORNER_RADIUS, startY + height);
+  ctx.quadraticCurveTo(startX, startY + height, startX, startY + height - CORNER_RADIUS);
+  ctx.lineTo(startX, startY + CORNER_RADIUS);
+  ctx.quadraticCurveTo(startX, startY, startX + CORNER_RADIUS, startY);
+  ctx.closePath();
   ctx.stroke();
 }
 
