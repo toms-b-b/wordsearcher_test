@@ -65,6 +65,5 @@ export const getRandomPosition = (
     }
   }
 
-  console.log(`Generated start position for ${direction} (backwards: ${isBackwards}):`, { x, y });
   return { x, y };
 };

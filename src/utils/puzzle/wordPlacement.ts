@@ -13,7 +13,6 @@ const getWordPosition = (
     x: startX + (index * vector.x),
     y: startY + (index * vector.y)
   };
-  console.log(`Letter position ${index}:`, position, { isBackwards });
   return position;
 };
 
@@ -25,11 +24,6 @@ export const canPlaceWord = (
   direction: Direction,
   isBackwards: boolean
 ): boolean => {
-  console.log(`Checking if can place word "${word}" at (${startX},${startY}):`, {
-    direction,
-    isBackwards
-  });
-
   const vector = getDirectionVector(direction, isBackwards);
   // Don't reverse the word, just check positions
   const letters = word.split('');
@@ -39,19 +33,14 @@ export const canPlaceWord = (
     
     // Check bounds
     if (x < 0 || x >= grid.length || y < 0 || y >= grid.length) {
-      console.log(`Position out of bounds: (${x},${y})`);
       return false;
     }
     
     const cell = grid[y][x];
     const canPlaceHere = cell.letter === '' || cell.letter === letter.toUpperCase();
-    if (!canPlaceHere) {
-      console.log(`Conflict at (${x},${y}): existing="${cell.letter}", new="${letter}"`);
-    }
     return canPlaceHere;
   });
 
-  console.log(`Can place word "${word}": ${canPlace}`);
   return canPlace;
 };
 
@@ -64,12 +53,6 @@ export const placeWord = (
   isBackwards: boolean,
   wordIndex: number
 ): void => {
-  console.log(`Placing word "${word}" at (${startX},${startY}):`, {
-    direction,
-    isBackwards,
-    wordIndex
-  });
-
   if (!canPlaceWord(grid, word, startX, startY, direction, isBackwards)) {
     throw new Error(`Cannot place word "${word}" at position (${startX}, ${startY})`);
   }
@@ -91,6 +74,5 @@ export const placeWord = (
       wordDirection: direction,
       originalIndex: i
     };
-    console.log(`Placed letter "${letter}" at (${x},${y}) [${isBackwards ? 'backwards' : 'forwards'}]`);
   });
 };

@@ -15,10 +15,9 @@ function drawWordHighlight(
   startY: number,
   wordLength: number,
   cellSize: number,
-  direction: Direction,
-  isBackwards: boolean
+  direction: Direction
 ) {
-  const OVAL_RATIO = 1.5;
+  const OVAL_RATIO = 5; // Increased for wider highlights
   const steps = 36;
   
   // Calculate end coordinates based on direction
@@ -42,8 +41,8 @@ function drawWordHighlight(
   // Calculate center and dimensions
   const centerX = (startX + endX) / 2;
   const centerY = (startY + endY) / 2;
-  const width = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)) + (cellSize * 0.5);
-  const height = cellSize * OVAL_RATIO;
+  const width = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2)) + (cellSize * 10); // Adjusted width for better coverage
+  const height = cellSize * OVAL_RATIO; // Adjusted height
   
   // Calculate rotation angle
   const angle = Math.atan2(endY - startY, endX - startX);
@@ -138,8 +137,7 @@ export function PuzzleGrid({
           startY,
           word.word.length,
           cellSize,
-          word.direction,
-          word.isBackwards
+          word.direction
         );
       });
     }

@@ -14,16 +14,18 @@ export const getDirectionVector = (direction: Direction, isBackwards: boolean): 
       case 'vertical':
         return { x: 0, y: isBackwards ? -1 : 1 };
       case 'diagonal':
-        return { 
-          x: isBackwards ? -1 : 1, 
-          y: isBackwards ? 1 : -1 // Fix: Corrected y-coordinate for diagonal direction
+        // For diagonal words, we want to maintain the same diagonal direction
+        // and only reverse the entire vector when backwards
+        const baseVector = { x: 1, y: 1 }; // Always go down-right
+        return {
+          x: isBackwards ? -baseVector.x : baseVector.x,
+          y: isBackwards ? -baseVector.y : baseVector.y
         };
       default:
         throw new Error(`Invalid direction: ${direction}`);
     }
   })();
 
-  console.log(`Direction vector for ${direction} (backwards: ${isBackwards}):`, vector);
   return vector;
 };
 
@@ -31,19 +33,8 @@ export const getRandomDirection = (
   availableDirections: Direction[],
   allowBackwards: boolean
 ): { direction: Direction; isBackwards: boolean } => {
-  console.log('Getting random direction with:', {
-    availableDirections,
-    allowBackwards
-  });
-
   const direction = availableDirections[Math.floor(Math.random() * availableDirections.length)];
   const isBackwards = allowBackwards && Math.random() < 0.5;
-
-  console.log('Selected direction:', {
-    direction,
-    isBackwards,
-    probability: allowBackwards ? '50%' : '0%'
-  });
 
   return { direction, isBackwards };
 };
