@@ -1,4 +1,3 @@
-import React from 'react';
 import { PuzzleGrid } from './PuzzleGrid';
 import { WordList } from './WordList';
 import { PuzzleConfig } from '../types';

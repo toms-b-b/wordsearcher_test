@@ -1,24 +1,40 @@
-import React from 'react';
+import { PlacedWord } from '../types';
 
 interface WordListProps {
   words: string[];
   fontSize: number;
   wordBankFontSize: number;
   font: string;
+  placedWords?: PlacedWord[];
 }
 
-export function WordList({ words, fontSize, wordBankFontSize, font }: WordListProps) {
+export function WordList({ words, fontSize, wordBankFontSize, font, placedWords }: WordListProps) {
+  const wordsPerColumn = Math.ceil(words.length / 3);
+
+  const getWordDisplay = (word: string) => {
+    if (!placedWords) return word;
+    const placedWord = placedWords.find(pw => pw.word === word);
+    return placedWord?.isBackwards ? `${word} ←` : word;
+  };
+
   return (
-    <div 
-      className="mt-4 grid grid-cols-3 gap-2" 
-      style={{ 
-        fontSize: `${wordBankFontSize}px`,
-        fontFamily: font
-      }}
-    >
-      {words.map((word, index) => (
-        <div key={index} className="px-2 py-1">
-          {word.toUpperCase()}
+    <div className="grid grid-cols-3 gap-4 max-w-3xl mx-auto">
+      {Array.from({ length: 3 }).map((_, colIndex) => (
+        <div key={colIndex} className="space-y-2">
+          {words
+            .slice(colIndex * wordsPerColumn, (colIndex + 1) * wordsPerColumn)
+            .map((word, index) => (
+              <div
+                key={`${word}-${index}`}
+                className="text-center"
+                style={{
+                  fontFamily: font,
+                  fontSize: `${wordBankFontSize}px`,
+                }}
+              >
+                {getWordDisplay(word)}
+              </div>
+            ))}
         </div>
       ))}
     </div>

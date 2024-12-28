@@ -21,20 +21,21 @@ function drawWordHighlight(
   const OVAL_RATIO = 1.5;
   const steps = 36;
   
-  // Calculate end coordinates based on direction and word length
+  // Calculate end coordinates based on direction
   let endX = startX;
   let endY = startY;
   
+  // Always move in the positive direction since we're using original placement positions
   switch (direction) {
     case 'horizontal':
-      endX += (isBackwards ? -wordLength : wordLength) * cellSize;
+      endX += wordLength * cellSize;
       break;
     case 'vertical':
-      endY += (isBackwards ? -wordLength : wordLength) * cellSize;
+      endY += wordLength * cellSize;
       break;
     case 'diagonal':
-      endX += (isBackwards ? -wordLength : wordLength) * cellSize;
-      endY += (isBackwards ? -wordLength : wordLength) * cellSize;
+      endX += wordLength * cellSize;
+      endY += wordLength * cellSize;
       break;
   }
 

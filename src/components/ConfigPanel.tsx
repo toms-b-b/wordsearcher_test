@@ -1,4 +1,4 @@
-import React from 'react';
+import type { ChangeEvent } from 'react';
 import { Upload, Download } from 'lucide-react';
 import { PAGE_SIZES, FONT_OPTIONS, BASE_DIRECTIONS } from '../utils/constants';
 import { PuzzleConfig, Direction } from '../types';
@@ -10,7 +10,7 @@ interface ConfigPanelProps {
   minGridSize: number;
   setConfig: (config: PuzzleConfig) => void;
   regeneratePuzzles: () => void;
-  handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleFileUpload: (event: ChangeEvent<HTMLInputElement>) => void;
   handleDownload: () => void;
   puzzles: PuzzleConfig[];
 }
@@ -64,9 +64,15 @@ export function ConfigPanel({
   };
 
   const toggleBackwards = () => {
-    console.log('Current allowBackwards:', config.allowBackwards);
-    console.log('Toggling to:', !config.allowBackwards);
-    handleConfigChange('allowBackwards', !config.allowBackwards);
+    const newConfig = {
+      ...config,
+      allowBackwards: !config.allowBackwards
+    };
+    setConfig(newConfig);
+    // Force regeneration after state update
+    requestAnimationFrame(() => {
+      regeneratePuzzles();
+    });
   };
 
   return (

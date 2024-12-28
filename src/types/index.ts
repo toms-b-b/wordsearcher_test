@@ -12,8 +12,14 @@ export interface PlacedWord {
 export interface PuzzleCell {
   letter: string;
   isPartOfWord: boolean;
-  position: { x: number; y: number };
-  wordIndices: number[];
+  position: {
+    x: number;
+    y: number;
+  };
+  wordIndices?: number[];
+  isBackwards?: boolean;
+  wordDirection?: Direction;
+  originalIndex?: number; // Index of the letter in the original word
 }
 
 export interface PageSize {

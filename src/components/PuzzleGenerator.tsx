@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { PuzzleConfig } from '../types';
 import { ConfigPanel } from './ConfigPanel';
 import { PuzzlePreview } from './PuzzlePreview';
@@ -8,46 +8,47 @@ import { useZipDownload } from '../hooks/useZipDownload';
 import { PAGE_SIZES, FONT_OPTIONS, BASE_DIRECTIONS } from '../utils/constants';
 import { findLongestWordLength } from '../utils/wordUtils';
 
+const initialConfig: PuzzleConfig = {
+  title: '',
+  words: [],
+  fontSize: 16,
+  wordBankFontSize: 14,
+  titleFontSize: 24,
+  pageSize: PAGE_SIZES[0],
+  directions: [...BASE_DIRECTIONS],
+  allowBackwards: false,
+  gridSize: 0,
+  font: FONT_OPTIONS[0]
+};
+
 export function PuzzleGenerator() {
   const [puzzles, setPuzzles] = useState<PuzzleConfig[]>([]);
   const [selectedPuzzle, setSelectedPuzzle] = useState<PuzzleConfig | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [hasChanges, setHasChanges] = useState(false);
-  const [config, setConfig] = useState<PuzzleConfig>({
-    title: '',
-    words: [],
-    fontSize: 16,
-    wordBankFontSize: 14,
-    titleFontSize: 24,
-    pageSize: PAGE_SIZES[0],
-    directions: [...BASE_DIRECTIONS],
-    allowBackwards: false,
-    gridSize: 0,
-    font: FONT_OPTIONS[0]
-  });
+  const [config, setConfig] = useState<PuzzleConfig>(initialConfig);
 
   const { handleFileUpload, error: uploadError } = useFileUpload(config, setPuzzles);
   const { handleDownload, error: downloadError } = useZipDownload();
 
-  const regeneratePuzzles = useCallback(() => {
-    setPuzzles(prev => prev.map(puzzle => {
-      const longestWord = findLongestWordLength(puzzle.words);
-      const minGridSize = Math.max(longestWord + 1, config.gridSize);
+  const minGridSize = useMemo(() => 
+    Math.max(...puzzles.map(p => findLongestWordLength(p.words) + 1)), 
+    [puzzles]
+  );
 
-      return {
-        ...puzzle,
-        fontSize: config.fontSize,
-        wordBankFontSize: config.wordBankFontSize,
-        titleFontSize: config.titleFontSize,
-        pageSize: config.pageSize,
-        directions: config.directions,
-        allowBackwards: config.allowBackwards,
-        gridSize: minGridSize,
-        font: config.font
-      };
-    }));
+  const regeneratePuzzles = useCallback(() => {
+    setPuzzles(prev => prev.map(puzzle => ({
+      ...puzzle,
+      fontSize: config.fontSize,
+      wordBankFontSize: config.wordBankFontSize,
+      titleFontSize: config.titleFontSize,
+      pageSize: config.pageSize,
+      directions: config.directions,
+      allowBackwards: config.allowBackwards,
+      gridSize: Math.max(findLongestWordLength(puzzle.words) + 1, config.gridSize),
+      font: config.font
+    })));
     setHasChanges(true);
-    // Force refresh the preview
     setRefreshKey(prev => prev + 1);
   }, [config]);
 
@@ -56,23 +57,20 @@ export function PuzzleGenerator() {
     setHasChanges(false);
   }, []);
 
-  // Update selected puzzle when puzzles change
   React.useEffect(() => {
-    if (selectedPuzzle) {
+    if (selectedPuzzle?.title) {
       const updatedPuzzle = puzzles.find(p => p.title === selectedPuzzle.title);
       if (updatedPuzzle) {
         setSelectedPuzzle(updatedPuzzle);
       }
     }
-  }, [puzzles, selectedPuzzle]);
+  }, [puzzles, selectedPuzzle?.title]);
 
   return (
     <div className="container mx-auto px-4 py-8">
       <ConfigPanel
         config={config}
-        minGridSize={Math.max(
-          ...puzzles.map(p => findLongestWordLength(p.words) + 1)
-        )}
+        minGridSize={minGridSize}
         setConfig={setConfig}
         regeneratePuzzles={regeneratePuzzles}
         handleFileUpload={handleFileUpload}
