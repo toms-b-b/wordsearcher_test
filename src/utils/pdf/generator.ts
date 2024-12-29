@@ -18,7 +18,7 @@ export function generatePDF(
   const doc = new jsPDF({
     unit: 'in',
     format: [puzzle.pageSize.width, puzzle.pageSize.height],
-    orientation: puzzle.pageSize.width > puzzle.pageSize.height ? 'l' : 'p'
+    orientation: 'portrait'  // Always use portrait orientation
   });
 
   try {
@@ -26,36 +26,36 @@ export function generatePDF(
     const dimensions = calculatePDFDimensions(doc, puzzle, grid.length);
 
     // Add title
-doc.setFont(puzzle.font.value);
-doc.setFontSize(puzzle.titleFontSize);
+    doc.setFont(puzzle.font.value);
+    doc.setFontSize(puzzle.titleFontSize);
 
-// Calculate the center of the page
-const pageWidth = puzzle.pageSize.width; // Width of the PDF page
-const centerX = pageWidth / 2; // X-coordinate for centering the text
+    // Calculate the center of the page
+    const pageWidth = puzzle.pageSize.width; // Width of the PDF page
+    const centerX = pageWidth / 2; // X-coordinate for centering the text
 
-// Add centered title
-doc.text(
-  [
-    puzzle.title, // First line: puzzle title
-    showSolution ? 'Solution' : '' // Second line: "Solution" or empty string
-  ].filter(line => line !== ''), // Remove empty lines if showSolution is false
-  centerX, // Center the text horizontally
-  dimensions.titleStartY,
-  { align: 'center' } // Use 'center' alignment
-);
+    // Add centered title
+    doc.text(
+      [
+        puzzle.title, // First line: puzzle title
+        showSolution ? 'Solution' : '' // Second line: "Solution" or empty string
+      ].filter(line => line !== ''), // Remove empty lines if showSolution is false
+      centerX, // Center the text horizontally
+      dimensions.titleStartY,
+      { align: 'center' } // Use 'center' alignment
+    );
 
     // Draw the base grid
-    drawGrid(doc, grid, puzzle.fontSize, dimensions, puzzle.font.value);
+    drawGrid(doc, grid, puzzle.fontSize, dimensions, puzzle.font.value, puzzle.gridStyle);
 
     // Add solution highlights if needed
     if (showSolution) {
-      drawSolutionHighlights(doc, placedWords, dimensions);
+      drawSolutionHighlights(doc, placedWords, dimensions, puzzle.highlightStyle);
     }
 
     // Add word list
     drawWordList(
       doc,
-      puzzle.words,
+      placedWords.map(p => p.word),
       puzzle.wordBankFontSize,
       dimensions,
       puzzle.font.value

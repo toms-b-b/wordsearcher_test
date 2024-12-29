@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import { Direction } from '../../types';
+import { Direction, HighlightStyle } from '../../types';
 import { WordCoordinates, calculateWordCoordinates } from './coordinates';
 
 const LINE_WIDTH = 0.02;
@@ -96,10 +96,16 @@ function generateRoundedRectPoints(
   return points;
 }
 
-function drawRoundedRect(doc: jsPDF, points: Point[]): void {
+function drawRoundedRect(doc: jsPDF, points: Point[], highlightStyle: HighlightStyle): void {
   if (points.length < 2) return;
 
-  doc.setDrawColor(0);
+  // Parse the highlight color from hex to RGB
+  const hex = highlightStyle.color.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+
+  doc.setDrawColor(r, g, b);
   doc.setLineWidth(LINE_WIDTH);
   doc.setLineCap('round');
   doc.setLineJoin('round');
@@ -125,7 +131,8 @@ export function drawWordHighlight(
   wordLength: number,
   cellSize: number,
   direction: Direction,
-  isBackwards: boolean = false
+  isBackwards: boolean = false,
+  highlightStyle: HighlightStyle
 ): void {
   const coords = calculateWordCoordinates(
     startX,
@@ -137,5 +144,5 @@ export function drawWordHighlight(
   );
 
   const points = generateRoundedRectPoints(coords, cellSize);
-  drawRoundedRect(doc, points);
+  drawRoundedRect(doc, points, highlightStyle);
 }

@@ -18,3 +18,17 @@ export const BASE_DIRECTIONS: Direction[] = ['horizontal', 'vertical', 'diagonal
 
 export const MIN_GRID_SIZE = 10;
 export const MAX_GRID_SIZE = 25;
+
+export const DEFAULT_GRID_STYLE = {
+  showOuterBorder: true,
+  outerBorderWidth: 0.02,
+  showCellBorders: true,
+  cellBorderWidth: 0.01,
+  letterPadding: 0
+};
+
+export const DEFAULT_HIGHLIGHT_STYLE = {
+  color: '#FFD700',  // Gold color
+  thickness: 0.02,   // Line thickness in inches
+  padding: 0.05      // Padding from cell border in inches
+};

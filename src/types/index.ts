@@ -33,7 +33,22 @@ export interface FontOption {
   value: string;
 }
 
+export interface GridStyle {
+  showOuterBorder: boolean;
+  outerBorderWidth: number;
+  showCellBorders: boolean;
+  cellBorderWidth: number;
+  letterPadding: number;
+}
+
+export interface HighlightStyle {
+  color: string;
+  thickness: number;
+  padding: number;
+}
+
 export interface PuzzleConfig {
+  id: string;  // Unique identifier for each puzzle
   title: string;
   words: string[];
   fontSize: number;
@@ -44,6 +59,8 @@ export interface PuzzleConfig {
   allowBackwards: boolean;
   gridSize: number;
   font: FontOption;
+  gridStyle: GridStyle;
+  highlightStyle: HighlightStyle;
 }
 
 export interface CSVPuzzle {

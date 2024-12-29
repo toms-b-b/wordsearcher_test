@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import { PuzzleCell, PlacedWord } from '../../types';
+import { PuzzleCell, PlacedWord, GridStyle, HighlightStyle } from '../../types';
 import { PDFDimensions } from './dimensions';
 import { drawWordHighlight } from './highlighting';
 
@@ -9,25 +9,48 @@ export function drawGrid(
   fontSize: number,
   dimensions: PDFDimensions,
   font: string,
+  gridStyle: GridStyle,
 ): void {
   try {
     doc.setFont(font);
     doc.setFontSize(fontSize);
     doc.setTextColor(0, 0, 0);
-    doc.setLineWidth(0.01);
+    
+    const gridStartX = dimensions.marginInches;
+    const gridEndX = gridStartX + (grid[0].length * dimensions.cellSize);
+    const gridEndY = dimensions.gridStartY + (grid.length * dimensions.cellSize);
+
+    // Draw outer border if enabled
+    if (gridStyle.showOuterBorder) {
+      doc.setLineWidth(gridStyle.outerBorderWidth);
+      doc.rect(
+        gridStartX,
+        dimensions.gridStartY,
+        grid[0].length * dimensions.cellSize,
+        grid.length * dimensions.cellSize
+      );
+    }
+
+    // Set line width for cell borders
+    if (gridStyle.showCellBorders) {
+      doc.setLineWidth(gridStyle.cellBorderWidth);
+    }
     
     grid.forEach((row, y) => {
       row.forEach((cell, x) => {
         const cellX = dimensions.marginInches + (x * dimensions.cellSize);
         const cellY = dimensions.gridStartY + (y * dimensions.cellSize);
 
-        // Draw cell border
-        doc.rect(cellX, cellY, dimensions.cellSize, dimensions.cellSize);
+        // Draw cell border if enabled
+        if (gridStyle.showCellBorders) {
+          doc.rect(cellX, cellY, dimensions.cellSize, dimensions.cellSize);
+        }
 
-        // Center letter in cell
+        // Center letter in cell with padding
         const textWidth = doc.getStringUnitWidth(cell.letter) * fontSize / doc.internal.scaleFactor;
-        const xOffset = (dimensions.cellSize - textWidth) / 2;
-        const yOffset = (dimensions.cellSize + fontSize / 72) / 2;
+        const effectiveCellSize = dimensions.cellSize - (2 * gridStyle.letterPadding);
+        const xOffset = (effectiveCellSize - textWidth) / 2 + gridStyle.letterPadding;
+        const yOffset = (effectiveCellSize + fontSize / 72) / 2 + gridStyle.letterPadding;
 
         doc.text(
           cell.letter,
@@ -46,6 +69,7 @@ export function drawSolutionHighlights(
   doc: jsPDF,
   placedWords: PlacedWord[],
   dimensions: PDFDimensions,
+  highlightStyle: HighlightStyle
 ): void {
   try {
     placedWords.forEach((placedWord) => {
@@ -59,7 +83,8 @@ export function drawSolutionHighlights(
         placedWord.word.length,
         dimensions.cellSize,
         placedWord.direction,
-        placedWord.isBackwards
+        placedWord.isBackwards,
+        highlightStyle
       );
     });
   } catch (error) {

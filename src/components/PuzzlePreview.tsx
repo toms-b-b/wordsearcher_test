@@ -1,13 +1,19 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { PuzzleConfig } from '../types';
 import { generatePuzzle } from '../utils/puzzleGenerator';
 import { generatePDF } from '../utils/pdf/generator';
 
 interface PuzzlePreviewProps {
   puzzle: PuzzleConfig;
+  showSolution: boolean;
+  className?: string;
 }
 
-export function PuzzlePreview({ puzzle }: PuzzlePreviewProps) {
+export function PuzzlePreview({ 
+  puzzle, 
+  showSolution,
+  className = '' 
+}: PuzzlePreviewProps) {
   const [puzzleUrl, setPuzzleUrl] = useState<string>('');
   const [solutionUrl, setSolutionUrl] = useState<string>('');
 
@@ -59,24 +65,12 @@ export function PuzzlePreview({ puzzle }: PuzzlePreviewProps) {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Puzzle Preview */}
-      <div className="border rounded-lg shadow-lg overflow-hidden">
+    <div className={`flex flex-col h-full ${className}`}>
+      <div className="flex-grow bg-gray-50 rounded-lg shadow-sm overflow-hidden">
         <embed
-          src={puzzleUrl}
+          src={`${showSolution ? solutionUrl : puzzleUrl}#zoom=50&view=Fit`}
           type="application/pdf"
-          className="w-full"
-          style={{ height: '11in' }}
-        />
-      </div>
-
-      {/* Solution Preview */}
-      <div className="border rounded-lg shadow-lg overflow-hidden">
-        <embed
-          src={solutionUrl}
-          type="application/pdf"
-          className="w-full"
-          style={{ height: '11in' }}
+          className="w-full h-full"
         />
       </div>
     </div>
