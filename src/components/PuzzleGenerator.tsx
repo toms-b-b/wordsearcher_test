@@ -4,11 +4,13 @@ import { BASE_DIRECTIONS } from '../types/direction';
 import { ConfigPanel } from './ConfigPanel';
 import { PuzzlePreview } from './PuzzlePreview';
 import { PuzzleSelector } from './PuzzleSelector';
+import { Toggle } from './config/Toggle';
 import { useFileUpload } from '../hooks/useFileUpload';
 import { useZipDownload } from '../hooks/useZipDownload';
 import { PAGE_SIZES, FONT_OPTIONS, DEFAULT_GRID_STYLE, DEFAULT_HIGHLIGHT_STYLE, MIN_GRID_SIZE } from '../utils/constants';
 import { findLongestWordLength } from '../utils/wordUtils';
 import { parseCSV } from '../utils/csvParser';
+import { Tooltip } from './common/Tooltip'; // Import the Tooltip component
 
 const initialConfig: PuzzleConfig = {
   id: `empty-${Date.now()}`,
@@ -65,7 +67,11 @@ export function PuzzleGenerator() {
   }, [config]);
 
   const { error: uploadErrorHook } = useFileUpload(config, setPuzzles);
-  const { handleDownload, error: downloadError } = useZipDownload();
+  const { handleDownload } = useZipDownload();
+
+  const handleDownloadClick = () => {
+    handleDownload(puzzles);
+  };
 
   const minGridSize = useMemo(() => 
     Math.max(...puzzles.map(p => findLongestWordLength(p.words) + 1)), 
@@ -73,8 +79,15 @@ export function PuzzleGenerator() {
   );
 
   // Handle config changes
-  const handleConfigChange = useCallback((newConfig: PuzzleConfig) => {
+  const handleConfigChange = useCallback((newConfigPartial: Partial<PuzzleConfig>) => {
+    // First merge the partial config with current config
+    const newConfig = {
+      ...config,
+      ...newConfigPartial
+    };
+    
     setConfig(newConfig);
+
     // Force regenerate puzzles immediately after config change
     const updatedPuzzles = puzzles.map(puzzle => ({
       ...puzzle,
@@ -101,7 +114,7 @@ export function PuzzleGenerator() {
     // Then update puzzles and refresh key
     setPuzzles(updatedPuzzles);
     setRefreshKey(Date.now());
-  }, [puzzles, selectedPuzzle]);
+  }, [config, puzzles, selectedPuzzle]);
 
   // Update selected puzzle when puzzles change
   useEffect(() => {
@@ -123,58 +136,60 @@ export function PuzzleGenerator() {
   }, [puzzles, selectedPuzzle?.title]);
 
   return (
-    <div className="container mx-auto px-4 py-4 h-screen flex flex-col">
-      <div className="flex gap-4 h-full">
-        {/* Left side - Configuration */}
-        <div className="w-1/2 bg-white rounded-lg shadow-sm p-4 overflow-y-auto">
-          <ConfigPanel
-            config={config}
-            minGridSize={minGridSize}
-            setConfig={handleConfigChange}
-            handleFileUpload={handleFileUpload}
-            handleDownload={() => handleDownload(puzzles)}
-            puzzles={puzzles}
-          />
-
-          {(uploadError || uploadErrorHook) && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-2 mt-2">
-              <p className="text-red-600 text-sm">{uploadError || uploadErrorHook}</p>
-            </div>
-          )}
-
-          {downloadError && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-2 mt-2">
-              <p className="text-red-600 text-sm">{downloadError}</p>
-            </div>
-          )}
+    <div className="min-h-screen bg-gray-100">
+      <div className="flex gap-6 h-screen p-6">
+        {/* Left side - Configuration (2/3 width) */}
+        <div className="w-2/3">
+          <div className="bg-white rounded-xl shadow-sm p-6 h-full">
+            <h2 className="text-xl font-semibold text-gray-800 mb-6">Word Search Generator</h2>
+            <ConfigPanel
+              config={config}
+              minGridSize={minGridSize}
+              setConfig={handleConfigChange}
+              handleFileUpload={handleFileUpload}
+              handleDownload={handleDownloadClick}
+              puzzles={puzzles}
+            />
+            {(uploadError || uploadErrorHook) && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-600 text-sm">{uploadError || uploadErrorHook}</p>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Right side - Preview */}
-        <div className="w-1/2 flex flex-col">
+        {/* Right side - Preview (1/3 width) */}
+        <div className="w-1/3 flex flex-col">
           {puzzles.length > 0 && (
             <>
-              <div className="bg-white rounded-lg shadow-sm p-2 mb-2 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4 flex-grow">
-                  <PuzzleSelector
-                    puzzles={puzzles}
-                    selectedPuzzle={selectedPuzzle}
-                    setSelectedPuzzle={setSelectedPuzzle}
-                  />
-                  <label className="inline-flex items-center cursor-pointer">
-                    <span className="mr-2 text-xs font-medium text-gray-700">
-                      Show Solution
-                    </span>
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500"
-                      checked={showSolution}
-                      onChange={(e) => setShowSolution(e.target.checked)}
-                    />
-                  </label>
+              <div className="bg-white rounded-xl shadow-sm p-4 mb-6 flex items-center gap-4">
+                <div className="flex-grow">
+                  <Tooltip content="Select which puzzle to preview and edit from your uploaded CSV file">
+                    <div>
+                      <PuzzleSelector
+                        puzzles={puzzles}
+                        selectedPuzzle={selectedPuzzle}
+                        setSelectedPuzzle={setSelectedPuzzle}
+                        className="flex-grow"
+                      />
+                    </div>
+                  </Tooltip>
+                </div>
+                <div>
+                  <Tooltip content="Show the solution grid with all words highlighted in their respective colors">
+                    <div>
+                      <Toggle
+                        label="Solution"
+                        checked={showSolution}
+                        onChange={setShowSolution}
+                        color="amber"
+                      />
+                    </div>
+                  </Tooltip>
                 </div>
               </div>
               {selectedPuzzle && (
-                <div className="flex-grow bg-white rounded-lg shadow-sm overflow-hidden">
+                <div className="flex-grow bg-white rounded-xl shadow-sm overflow-hidden">
                   <PuzzlePreview
                     key={refreshKey}
                     puzzle={selectedPuzzle}

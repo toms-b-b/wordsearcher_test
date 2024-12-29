@@ -17,8 +17,6 @@ export function drawGrid(
     doc.setTextColor(0, 0, 0);
     
     const gridStartX = dimensions.marginInches;
-    const gridEndX = gridStartX + (grid[0].length * dimensions.cellSize);
-    const gridEndY = dimensions.gridStartY + (grid.length * dimensions.cellSize);
 
     // Draw outer border if enabled
     if (gridStyle.showOuterBorder) {

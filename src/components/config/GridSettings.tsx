@@ -1,24 +1,16 @@
-import React from 'react';
 import { Direction } from '../../types';
 import { BASE_DIRECTIONS, MAX_GRID_SIZE } from '../../utils/constants';
 import { Toggle } from './Toggle';
+import { Tooltip } from '../common/Tooltip';
 
 interface GridSettingsProps {
   gridSize: number;
   minGridSize: number;
   allowBackwards: boolean;
   directions: Direction[];
-  gridStyle: {
-    showOuterBorder: boolean;
-    outerBorderWidth: number;
-    showCellBorders: boolean;
-    cellBorderWidth: number;
-    letterPadding: number;
-  };
   onGridSizeChange: (value: number) => void;
   onAllowBackwardsChange: (value: boolean) => void;
   onDirectionChange: (direction: Direction, checked: boolean) => void;
-  onGridStyleChange: (key: string, value: number | boolean) => void;
 }
 
 export function GridSettings({
@@ -26,108 +18,74 @@ export function GridSettings({
   minGridSize,
   allowBackwards,
   directions,
-  gridStyle,
   onGridSizeChange,
   onAllowBackwardsChange,
   onDirectionChange,
-  onGridStyleChange
 }: GridSettingsProps) {
+  const directionColors: Record<Direction, 'purple' | 'blue' | 'green' | 'amber'> = {
+    horizontal: 'blue',
+    vertical: 'green',
+    diagonal: 'amber'
+  };
+
   return (
-    <div className="bg-gray-50 p-2 rounded space-y-4">
+    <div className="space-y-4">
       <div>
-        <h3 className="text-sm font-medium mb-1">Grid Size</h3>
+        <Tooltip content="Size of the puzzle grid. Larger grids will have more space for words and make the puzzle more challenging.">
+          <h3 className="text-sm font-semibold text-gray-700 mb-2 cursor-help">
+            Grid Size
+          </h3>
+        </Tooltip>
         <input
           type="number"
           value={gridSize}
           onChange={(e) => onGridSizeChange(Number(e.target.value))}
           min={minGridSize}
           max={MAX_GRID_SIZE}
-          className="w-full text-sm p-1 border rounded"
+          className="w-full text-sm p-1.5 border rounded-md focus:ring-1 focus:ring-purple-300 focus:border-purple-300"
         />
       </div>
 
       <div>
-        <h3 className="text-sm font-medium mb-1">Word Placement</h3>
-        <div className="space-y-2">
-          <Toggle
-            label="Allow Backwards Words"
-            checked={allowBackwards}
-            onChange={onAllowBackwardsChange}
-          />
-          <div className="space-y-1">
-            <label className="block text-xs text-gray-600">Word Directions</label>
-            <div className="flex gap-2">
+        <Tooltip content="Configure how words can be placed in the puzzle grid.">
+          <h3 className="text-sm font-semibold text-gray-700 mb-2 cursor-help">
+            Word Placement
+          </h3>
+        </Tooltip>
+        <div className="space-y-3">
+          <Tooltip content="Allow words to be written backwards in the puzzle, making it more challenging.">
+            <div>
+              <Toggle
+                label="Allow Backward Words"
+                checked={allowBackwards}
+                onChange={onAllowBackwardsChange}
+                color="purple"
+              />
+            </div>
+          </Tooltip>
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-2">
+              Word Directions
+            </label>
+            <div className="space-y-2">
               {BASE_DIRECTIONS.map((direction) => (
-                <Toggle
+                <Tooltip 
                   key={direction}
-                  label={direction}
-                  checked={directions.includes(direction)}
-                  onChange={(checked) => onDirectionChange(direction, checked)}
-                />
+                  content={`Allow words to be placed ${direction}ly in the puzzle`}
+                  position="right"
+                >
+                  <div>
+                    <Toggle
+                      key={direction}
+                      label={direction.charAt(0) + direction.slice(1).toLowerCase()}
+                      checked={directions.includes(direction)}
+                      onChange={(checked) => onDirectionChange(direction, checked)}
+                      color={directionColors[direction as Direction]}
+                    />
+                  </div>
+                </Tooltip>
               ))}
             </div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-sm font-medium mb-1">Grid Style</h3>
-        <div className="space-y-3">
-          <div className="space-y-2">
-            <Toggle
-              label="Show Outer Border"
-              checked={gridStyle.showOuterBorder}
-              onChange={(checked) => onGridStyleChange('showOuterBorder', checked)}
-            />
-            {gridStyle.showOuterBorder && (
-              <div>
-                <label className="block text-xs text-gray-600">Outer Border Thickness</label>
-                <input
-                  type="number"
-                  value={gridStyle.outerBorderWidth}
-                  onChange={(e) => onGridStyleChange('outerBorderWidth', Number(e.target.value))}
-                  step="0.01"
-                  min="0.01"
-                  max="0.1"
-                  className="w-full text-sm p-1 border rounded"
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Toggle
-              label="Show Cell Borders"
-              checked={gridStyle.showCellBorders}
-              onChange={(checked) => onGridStyleChange('showCellBorders', checked)}
-            />
-            {gridStyle.showCellBorders && (
-              <div>
-                <label className="block text-xs text-gray-600">Cell Border Thickness</label>
-                <input
-                  type="number"
-                  value={gridStyle.cellBorderWidth}
-                  onChange={(e) => onGridStyleChange('cellBorderWidth', Number(e.target.value))}
-                  step="0.01"
-                  min="0.01"
-                  max="0.1"
-                  className="w-full text-sm p-1 border rounded"
-                />
-              </div>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-xs text-gray-600">Letter Padding</label>
-            <input
-              type="number"
-              value={gridStyle.letterPadding}
-              onChange={(e) => onGridStyleChange('letterPadding', Number(e.target.value))}
-              step="0.01"
-              min="0"
-              max="0.1"
-              className="w-full text-sm p-1 border rounded"
-            />
           </div>
         </div>
       </div>

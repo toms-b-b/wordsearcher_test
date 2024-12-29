@@ -3,3 +3,4 @@
 3. Stick to the AirBNB style guide.
 4. After any edits, check for console problems and resolve them
 5. Ensure constraints for all the customizable settings that don't allow overflows or other errors
+6. The right side(preview side) must take up 1/3 of the width and the left side(customisation side) must take up the remaining 2/3 of width

@@ -4,11 +4,12 @@ interface PuzzleSelectorProps {
   puzzles: PuzzleConfig[];
   selectedPuzzle: PuzzleConfig | null;
   setSelectedPuzzle: (puzzle: PuzzleConfig) => void;
+  className?: string;
 }
 
-export function PuzzleSelector({ puzzles, selectedPuzzle, setSelectedPuzzle }: PuzzleSelectorProps) {
+export function PuzzleSelector({ puzzles, selectedPuzzle, setSelectedPuzzle, className }: PuzzleSelectorProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center gap-2 ${className || ''}`}>
       <label htmlFor="puzzle-select" className="text-xs font-medium text-gray-700">
         Puzzle:
       </label>
