@@ -1,4 +1,7 @@
-export type Direction = 'horizontal' | 'vertical' | 'diagonal';
+import { Direction } from './direction';
+
+export type { Direction };
+export * from './direction';
 
 export interface PlacedWord {
   word: string;
@@ -19,7 +22,7 @@ export interface PuzzleCell {
   wordIndices?: number[];
   isBackwards?: boolean;
   wordDirection?: Direction;
-  originalIndex?: number; // Index of the letter in the original word
+  originalIndex?: number;
 }
 
 export interface PageSize {
@@ -44,11 +47,12 @@ export interface GridStyle {
 export interface HighlightStyle {
   color: string;
   thickness: number;
-  padding: number;
+  horizontalPadding: number;
+  verticalPadding: number;
 }
 
 export interface PuzzleConfig {
-  id: string;  // Unique identifier for each puzzle
+  id: string;
   title: string;
   words: string[];
   fontSize: number;

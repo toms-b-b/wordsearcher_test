@@ -1,25 +1,26 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { PuzzleConfig, CSVPuzzle } from '../types';
+import { BASE_DIRECTIONS } from '../types/direction';
 import { ConfigPanel } from './ConfigPanel';
 import { PuzzlePreview } from './PuzzlePreview';
 import { PuzzleSelector } from './PuzzleSelector';
 import { useFileUpload } from '../hooks/useFileUpload';
 import { useZipDownload } from '../hooks/useZipDownload';
-import { PAGE_SIZES, FONT_OPTIONS, BASE_DIRECTIONS, DEFAULT_GRID_STYLE, DEFAULT_HIGHLIGHT_STYLE } from '../utils/constants';
+import { PAGE_SIZES, FONT_OPTIONS, DEFAULT_GRID_STYLE, DEFAULT_HIGHLIGHT_STYLE, MIN_GRID_SIZE } from '../utils/constants';
 import { findLongestWordLength } from '../utils/wordUtils';
 import { parseCSV } from '../utils/csvParser';
 
 const initialConfig: PuzzleConfig = {
   id: `empty-${Date.now()}`,
-  title: '',
-  words: [],
+  title: 'Sample Puzzle',
+  words: ['HELLO', 'WORLD', 'PUZZLE', 'GAME'],
   fontSize: 16,
   wordBankFontSize: 14,
   titleFontSize: 24,
   pageSize: PAGE_SIZES[0],
   directions: [...BASE_DIRECTIONS],
   allowBackwards: false,
-  gridSize: 0,
+  gridSize: MIN_GRID_SIZE,
   font: FONT_OPTIONS[0],
   gridStyle: DEFAULT_GRID_STYLE,
   highlightStyle: DEFAULT_HIGHLIGHT_STYLE
@@ -43,19 +44,11 @@ export function PuzzleGenerator() {
           const csvData = reader.result as string;
           const parsedPuzzles = parseCSV(csvData);
           const newPuzzles = parsedPuzzles.map((puzzle: CSVPuzzle, index: number) => ({
+            ...config,
             id: `puzzle-${Date.now()}-${index}`,
             title: puzzle.title,
             words: puzzle.words,
-            fontSize: config.fontSize,
-            wordBankFontSize: config.wordBankFontSize,
-            titleFontSize: config.titleFontSize,
-            pageSize: config.pageSize,
-            directions: config.directions,
-            allowBackwards: config.allowBackwards,
-            gridSize: Math.max(findLongestWordLength(puzzle.words) + 1, config.gridSize),
-            font: config.font,
-            gridStyle: config.gridStyle,
-            highlightStyle: config.highlightStyle
+            gridSize: Math.max(findLongestWordLength(puzzle.words) + 1, config.gridSize)
           }));
 
           setPuzzles(newPuzzles);
@@ -127,7 +120,7 @@ export function PuzzleGenerator() {
             puzzles={puzzles}
           />
 
-          {uploadError || uploadErrorHook && (
+          {(uploadError || uploadErrorHook) && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-2 mt-2">
               <p className="text-red-600 text-sm">{uploadError || uploadErrorHook}</p>
             </div>

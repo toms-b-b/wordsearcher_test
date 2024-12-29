@@ -1,4 +1,4 @@
-import { PageSize, FontOption, Direction } from '../types';
+import { PageSize, FontOption, GridStyle, HighlightStyle } from '../types';
 
 export const PAGE_SIZES: PageSize[] = [
   { width: 6, height: 9, label: '6" x 9"' },
@@ -14,12 +14,10 @@ export const FONT_OPTIONS: FontOption[] = [
   { label: 'Verdana', value: 'verdana' }
 ];
 
-export const BASE_DIRECTIONS: Direction[] = ['horizontal', 'vertical', 'diagonal'];
-
 export const MIN_GRID_SIZE = 10;
 export const MAX_GRID_SIZE = 25;
 
-export const DEFAULT_GRID_STYLE = {
+export const DEFAULT_GRID_STYLE: GridStyle = {
   showOuterBorder: true,
   outerBorderWidth: 0.02,
   showCellBorders: true,
@@ -27,8 +25,9 @@ export const DEFAULT_GRID_STYLE = {
   letterPadding: 0
 };
 
-export const DEFAULT_HIGHLIGHT_STYLE = {
-  color: '#FFD700',  // Gold color
-  thickness: 0.02,   // Line thickness in inches
-  padding: 0.05      // Padding from cell border in inches
+export const DEFAULT_HIGHLIGHT_STYLE: HighlightStyle = {
+  color: '#FFD700',      // Gold color
+  thickness: 0.02,       // Line thickness in inches
+  horizontalPadding: 1.3, // Horizontal padding ratio
+  verticalPadding: 1.3   // Vertical padding ratio
 };

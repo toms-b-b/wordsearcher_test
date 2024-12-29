@@ -14,11 +14,11 @@ export function generatePDF(
     throw new Error('Missing required parameters for PDF generation');
   }
 
-  // Create PDF with correct page size
+  // Create PDF with correct page size and orientation
   const doc = new jsPDF({
     unit: 'in',
     format: [puzzle.pageSize.width, puzzle.pageSize.height],
-    orientation: 'portrait'  // Always use portrait orientation
+    orientation: puzzle.pageSize.width > puzzle.pageSize.height ? 'landscape' : 'portrait'
   });
 
   try {
@@ -29,22 +29,21 @@ export function generatePDF(
     doc.setFont(puzzle.font.value);
     doc.setFontSize(puzzle.titleFontSize);
 
-    // Calculate the center of the page
-    const pageWidth = puzzle.pageSize.width; // Width of the PDF page
-    const centerX = pageWidth / 2; // X-coordinate for centering the text
+    // Calculate the center of the page for title
+    const centerX = puzzle.pageSize.width / 2;
 
     // Add centered title
     doc.text(
       [
-        puzzle.title, // First line: puzzle title
-        showSolution ? 'Solution' : '' // Second line: "Solution" or empty string
-      ].filter(line => line !== ''), // Remove empty lines if showSolution is false
-      centerX, // Center the text horizontally
+        puzzle.title,
+        showSolution ? 'Solution' : ''
+      ].filter(Boolean),
+      centerX,
       dimensions.titleStartY,
-      { align: 'center' } // Use 'center' alignment
+      { align: 'center' }
     );
 
-    // Draw the base grid
+    // Draw the grid
     drawGrid(doc, grid, puzzle.fontSize, dimensions, puzzle.font.value, puzzle.gridStyle);
 
     // Add solution highlights if needed
