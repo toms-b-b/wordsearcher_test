@@ -42,7 +42,7 @@ export function HighlightSettings({
             value={highlightStyle.horizontalPadding}
             onChange={(e) => onHighlightStyleChange('horizontalPadding', Number(e.target.value))}
             step="0.1"
-            min="1"
+            min="0.8"
             max="2"
             className="w-full text-sm p-1 border rounded"
           />
@@ -54,7 +54,7 @@ export function HighlightSettings({
             value={highlightStyle.verticalPadding}
             onChange={(e) => onHighlightStyleChange('verticalPadding', Number(e.target.value))}
             step="0.1"
-            min="1"
+            min="0.8"
             max="2"
             className="w-full text-sm p-1 border rounded"
           />

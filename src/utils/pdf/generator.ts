@@ -14,14 +14,14 @@ export function generatePDF(
     throw new Error('Missing required parameters for PDF generation');
   }
 
-  // Create PDF with correct page size and orientation
-  const doc = new jsPDF({
-    unit: 'in',
-    format: [puzzle.pageSize.width, puzzle.pageSize.height],
-    orientation: puzzle.pageSize.width > puzzle.pageSize.height ? 'landscape' : 'portrait'
-  });
-
   try {
+    // Create PDF with correct page size and orientation
+    const doc = new jsPDF({
+      unit: 'in',
+      format: [puzzle.pageSize.width, puzzle.pageSize.height],
+      orientation: 'portrait'
+    });
+
     // Calculate dimensions
     const dimensions = calculatePDFDimensions(doc, puzzle, grid.length);
 
@@ -63,6 +63,6 @@ export function generatePDF(
     return doc;
   } catch (error) {
     console.error('Error generating PDF:', error);
-    throw new Error(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw error; // Re-throw the error to be handled by the caller
   }
 }

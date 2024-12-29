@@ -51,6 +51,13 @@ export function ConfigPanel({
     }
   };
 
+  const handleGridStyleChange = (key: string, value: number | boolean) => {
+    handleConfigChange('gridStyle', {
+      ...config.gridStyle,
+      [key]: value
+    });
+  };
+
   const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const size = PAGE_SIZES.find(s => s.label === e.target.value);
     if (size) {
@@ -95,9 +102,11 @@ export function ConfigPanel({
           minGridSize={minGridSize}
           allowBackwards={config.allowBackwards}
           directions={config.directions}
+          gridStyle={config.gridStyle}
           onGridSizeChange={(value) => handleConfigChange('gridSize', value)}
           onAllowBackwardsChange={(value) => handleConfigChange('allowBackwards', value)}
           onDirectionChange={handleDirectionChange}
+          onGridStyleChange={handleGridStyleChange}
         />
 
         <HighlightSettings

@@ -1,8 +1,8 @@
 import { PageSize, FontOption, GridStyle, HighlightStyle, Direction } from '../types';
 
 export const PAGE_SIZES: PageSize[] = [
-  { width: 6, height: 9, label: '6" x 9"' },
-  { width: 8.5, height: 11, label: '8.5" x 11"' }
+  { width: 8.5, height: 11, label: '8.5" x 11"' },  // Changed order to make this default
+  { width: 6, height: 9, label: '6" x 9"' }
 ];
 
 export const FONT_OPTIONS: FontOption[] = [
