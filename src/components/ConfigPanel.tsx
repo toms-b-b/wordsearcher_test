@@ -11,7 +11,6 @@ interface ConfigPanelProps {
   config: PuzzleConfig;
   minGridSize: number;
   setConfig: (config: PuzzleConfig) => void;
-  regeneratePuzzles: () => void;
   handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleDownload: () => void;
   puzzles: PuzzleConfig[];
@@ -21,24 +20,27 @@ export function ConfigPanel({
   config,
   minGridSize,
   setConfig,
-  regeneratePuzzles,
   handleFileUpload,
   handleDownload,
   puzzles,
 }: ConfigPanelProps) {
   const handleConfigChange = (key: keyof PuzzleConfig, value: any) => {
-    setConfig({
+    const newConfig = {
       ...config,
       [key]: value
-    });
-    regeneratePuzzles();
+    };
+    setConfig(newConfig);
   };
 
   const handleHighlightStyleChange = (key: keyof HighlightStyle, value: string | number) => {
-    handleConfigChange('highlightStyle', {
-      ...config.highlightStyle,
-      [key]: value
-    });
+    const newConfig = {
+      ...config,
+      highlightStyle: {
+        ...config.highlightStyle,
+        [key]: value
+      }
+    };
+    setConfig(newConfig);
   };
 
   const handleDirectionChange = (direction: Direction, checked: boolean) => {
@@ -47,28 +49,44 @@ export function ConfigPanel({
       : config.directions.filter(d => d !== direction);
 
     if (newDirections.length > 0) {
-      handleConfigChange('directions', newDirections);
+      const newConfig = {
+        ...config,
+        directions: newDirections
+      };
+      setConfig(newConfig);
     }
   };
 
   const handleGridStyleChange = (key: string, value: number | boolean) => {
-    handleConfigChange('gridStyle', {
-      ...config.gridStyle,
-      [key]: value
-    });
+    const newConfig = {
+      ...config,
+      gridStyle: {
+        ...config.gridStyle,
+        [key]: value
+      }
+    };
+    setConfig(newConfig);
   };
 
   const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const size = PAGE_SIZES.find(s => s.label === e.target.value);
     if (size) {
-      handleConfigChange('pageSize', size);
+      const newConfig = {
+        ...config,
+        pageSize: size
+      };
+      setConfig(newConfig);
     }
   };
 
   const handleFontChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const font = FONT_OPTIONS.find(f => f.value === e.target.value);
     if (font) {
-      handleConfigChange('font', font);
+      const newConfig = {
+        ...config,
+        font: font
+      };
+      setConfig(newConfig);
     }
   };
 
@@ -116,7 +134,7 @@ export function ConfigPanel({
       </div>
 
       <button
-        onClick={regeneratePuzzles}
+        onClick={() => setConfig(config)}
         className="w-full px-3 py-1.5 text-sm bg-purple-600 text-white rounded hover:bg-purple-700"
         disabled={puzzles.length === 0}
       >

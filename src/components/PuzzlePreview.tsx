@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { PuzzleConfig } from '../types';
 import { generatePuzzle } from '../utils/puzzleGenerator';
 import { generatePDF } from '../utils/pdf/generator';
@@ -17,44 +17,45 @@ export function PuzzlePreview({
   const [puzzleUrl, setPuzzleUrl] = useState<string>('');
   const [solutionUrl, setSolutionUrl] = useState<string>('');
 
+  // Memoize the puzzle to detect actual changes
+  const memoizedPuzzle = useMemo(() => puzzle, [JSON.stringify(puzzle)]);
+
   const generatePreview = useCallback(async () => {
     try {
-      const { grid, placedWords } = generatePuzzle(puzzle);
+      const { grid, placedWords } = generatePuzzle(memoizedPuzzle);
       
       // Generate puzzle PDF
-      const puzzlePDF = generatePDF(puzzle, grid, placedWords, false);
+      const puzzlePDF = generatePDF(memoizedPuzzle, grid, placedWords, false);
       const puzzleBlob = new Blob([puzzlePDF.output('blob')], { type: 'application/pdf' });
-      const puzzleObjectUrl = URL.createObjectURL(puzzleBlob);
+      const newPuzzleUrl = URL.createObjectURL(puzzleBlob);
       
       // Generate solution PDF
-      const solutionPDF = generatePDF(puzzle, grid, placedWords, true);
+      const solutionPDF = generatePDF(memoizedPuzzle, grid, placedWords, true);
       const solutionBlob = new Blob([solutionPDF.output('blob')], { type: 'application/pdf' });
-      const solutionObjectUrl = URL.createObjectURL(solutionBlob);
+      const newSolutionUrl = URL.createObjectURL(solutionBlob);
       
-      setPuzzleUrl(puzzleObjectUrl);
-      setSolutionUrl(solutionObjectUrl);
-
-      return () => {
-        URL.revokeObjectURL(puzzleObjectUrl);
-        URL.revokeObjectURL(solutionObjectUrl);
-      };
+      // Clean up old URLs before setting new ones
+      if (puzzleUrl) URL.revokeObjectURL(puzzleUrl);
+      if (solutionUrl) URL.revokeObjectURL(solutionUrl);
+      
+      setPuzzleUrl(newPuzzleUrl);
+      setSolutionUrl(newSolutionUrl);
     } catch (error) {
       console.error('Error generating puzzle preview:', error);
-      return undefined;
+      setPuzzleUrl('');
+      setSolutionUrl('');
     }
-  }, [puzzle]);
+  }, [memoizedPuzzle]);
 
+  // Generate preview when puzzle changes
   useEffect(() => {
-    let cleanup: (() => void) | undefined;
+    generatePreview();
     
-    generatePreview().then(cleanupFn => {
-      cleanup = cleanupFn;
-    });
-
     return () => {
-      if (cleanup) cleanup();
+      if (puzzleUrl) URL.revokeObjectURL(puzzleUrl);
+      if (solutionUrl) URL.revokeObjectURL(solutionUrl);
     };
-  }, [generatePreview]);
+  }, [memoizedPuzzle, generatePreview]);
 
   if (!puzzleUrl || !solutionUrl) {
     return (

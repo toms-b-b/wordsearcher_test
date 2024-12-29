@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { PuzzleConfig, CSVPuzzle } from '../types';
 import { BASE_DIRECTIONS } from '../types/direction';
 import { ConfigPanel } from './ConfigPanel';
@@ -29,7 +29,6 @@ const initialConfig: PuzzleConfig = {
 export function PuzzleGenerator() {
   const [puzzles, setPuzzles] = useState<PuzzleConfig[]>([]);
   const [selectedPuzzle, setSelectedPuzzle] = useState<PuzzleConfig | null>(null);
-  const [hasChanges, setHasChanges] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [config, setConfig] = useState<PuzzleConfig>(initialConfig);
   const [showSolution, setShowSolution] = useState(false);
@@ -73,28 +72,46 @@ export function PuzzleGenerator() {
     [puzzles]
   );
 
-  const regeneratePuzzles = () => {
-    setPuzzles(prevPuzzles => prevPuzzles.map(puzzle => ({
+  // Handle config changes
+  const handleConfigChange = useCallback((newConfig: PuzzleConfig) => {
+    setConfig(newConfig);
+    // Force regenerate puzzles immediately after config change
+    const updatedPuzzles = puzzles.map(puzzle => ({
       ...puzzle,
-      fontSize: config.fontSize,
-      wordBankFontSize: config.wordBankFontSize,
-      titleFontSize: config.titleFontSize,
-      pageSize: config.pageSize,
-      directions: config.directions,
-      allowBackwards: config.allowBackwards,
-      gridSize: Math.max(findLongestWordLength(puzzle.words) + 1, config.gridSize),
-      font: config.font,
-      gridStyle: config.gridStyle,
-      highlightStyle: config.highlightStyle
-    })));
-    setHasChanges(true);
-    setRefreshKey(prev => prev + 1);
-  };
+      fontSize: newConfig.fontSize,
+      wordBankFontSize: newConfig.wordBankFontSize,
+      titleFontSize: newConfig.titleFontSize,
+      pageSize: newConfig.pageSize,
+      directions: newConfig.directions,
+      allowBackwards: newConfig.allowBackwards,
+      gridSize: Math.max(findLongestWordLength(puzzle.words) + 1, newConfig.gridSize),
+      font: newConfig.font,
+      gridStyle: newConfig.gridStyle,
+      highlightStyle: newConfig.highlightStyle
+    }));
 
-  const handleRefresh = useCallback(() => {
-    setRefreshKey(prev => prev + 1);
-    setHasChanges(false);
-  }, []);
+    // Update selected puzzle first if it exists
+    if (selectedPuzzle) {
+      const updatedSelectedPuzzle = updatedPuzzles.find(p => p.id === selectedPuzzle.id);
+      if (updatedSelectedPuzzle) {
+        setSelectedPuzzle(updatedSelectedPuzzle);
+      }
+    }
+
+    // Then update puzzles and refresh key
+    setPuzzles(updatedPuzzles);
+    setRefreshKey(Date.now());
+  }, [puzzles, selectedPuzzle]);
+
+  // Update selected puzzle when puzzles change
+  useEffect(() => {
+    if (selectedPuzzle?.id) {
+      const updatedPuzzle = puzzles.find(p => p.id === selectedPuzzle.id);
+      if (updatedPuzzle && JSON.stringify(updatedPuzzle) !== JSON.stringify(selectedPuzzle)) {
+        setSelectedPuzzle(updatedPuzzle);
+      }
+    }
+  }, [puzzles, selectedPuzzle]);
 
   React.useEffect(() => {
     if (selectedPuzzle?.title) {
@@ -113,8 +130,7 @@ export function PuzzleGenerator() {
           <ConfigPanel
             config={config}
             minGridSize={minGridSize}
-            setConfig={setConfig}
-            regeneratePuzzles={regeneratePuzzles}
+            setConfig={handleConfigChange}
             handleFileUpload={handleFileUpload}
             handleDownload={() => handleDownload(puzzles)}
             puzzles={puzzles}
@@ -156,14 +172,6 @@ export function PuzzleGenerator() {
                     />
                   </label>
                 </div>
-                {hasChanges && (
-                  <button
-                    onClick={handleRefresh}
-                    className="px-3 py-1.5 text-sm bg-purple-600 text-white rounded hover:bg-purple-700 whitespace-nowrap"
-                  >
-                    Refresh Preview
-                  </button>
-                )}
               </div>
               {selectedPuzzle && (
                 <div className="flex-grow bg-white rounded-lg shadow-sm overflow-hidden">
