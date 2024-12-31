@@ -4,25 +4,25 @@ import { PageSize, FontOption, Direction, GridStyle, HighlightStyle } from '../t
 export const DEFAULT_PAGE_SIZE: PageSize = { width: 8.5, height: 11, label: '8.5" x 11"' };
 export const DEFAULT_FONT: FontOption = { label: 'Helvetica', value: 'helvetica' };
 export const DEFAULT_GRID_SIZE = 15;
-export const DEFAULT_OUTER_BORDER_WIDTH = 0.02;
+export const DEFAULT_OUTER_BORDER_WIDTH = 0.0545;
 export const DEFAULT_CELL_BORDER_WIDTH = 0.01;
-export const DEFAULT_HIGHLIGHT_COLOR = '#ffeb3b';
-export const DEFAULT_HIGHLIGHT_BORDER_WIDTH = 0.02;
-export const DEFAULT_HORIZONTAL_PADDING = 0.75; // inches
-export const DEFAULT_VERTICAL_PADDING = 0.75; // inches
+export const DEFAULT_HIGHLIGHT_COLOR = '#ff483b';
+export const DEFAULT_HIGHLIGHT_BORDER_WIDTH = 0.05;
+export const DEFAULT_HORIZONTAL_PADDING = 0.79; // inches
+export const DEFAULT_VERTICAL_PADDING = 0.79; // inches
 export const DEFAULT_WORD_PLACEMENT: Direction[] = ['horizontal', 'vertical', 'diagonal'];
 
 // Page Size Specific Settings
 export const PAGE_SIZE_DEFAULTS = {
   '8.5" x 11"': {
-    titleFontSize: 24,
+    titleFontSize: 30,
     puzzleFontSize: 14,
-    wordBankFontSize: 12,
+    wordBankFontSize: 18,
   },
   '6" x 9"': {
-    titleFontSize: 20,
+    titleFontSize: 24,
     puzzleFontSize: 12,
-    wordBankFontSize: 10,
+    wordBankFontSize: 16,
   },
 } as const;
 

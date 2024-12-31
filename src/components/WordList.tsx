@@ -2,13 +2,12 @@ import { PlacedWord } from '../types';
 
 interface WordListProps {
   words: string[];
-  fontSize: number;
   wordBankFontSize: number;
   font: string;
   placedWords?: PlacedWord[];
 }
 
-export function WordList({ words, fontSize, wordBankFontSize, font, placedWords }: WordListProps) {
+export function WordList({ words, wordBankFontSize, font, placedWords }: WordListProps) {
   const wordsPerColumn = Math.ceil(words.length / 3);
 
   const getWordDisplay = (word: string) => {
