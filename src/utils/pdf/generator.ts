@@ -57,7 +57,8 @@ export function generatePDF(
       placedWords.map(p => p.word),
       puzzle.wordBankFontSize,
       dimensions,
-      puzzle.font.value
+      puzzle.font.value,
+      puzzle.checkboxStyle
     );
 
     return doc;

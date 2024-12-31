@@ -12,6 +12,7 @@ import {
   DEFAULT_GRID_SIZE,
   DEFAULT_GRID_STYLE,
   DEFAULT_HIGHLIGHT_STYLE,
+  DEFAULT_CHECKBOX_STYLE,
   BASE_DIRECTIONS,
   PAGE_SIZE_DEFAULTS,
   PAGE_SIZES
@@ -37,7 +38,8 @@ const getInitialConfig = (pageSize = DEFAULT_PAGE_SIZE): PuzzleConfig => {
     gridSize: DEFAULT_GRID_SIZE,
     font: DEFAULT_FONT,
     gridStyle: DEFAULT_GRID_STYLE,
-    highlightStyle: DEFAULT_HIGHLIGHT_STYLE
+    highlightStyle: DEFAULT_HIGHLIGHT_STYLE,
+    checkboxStyle: DEFAULT_CHECKBOX_STYLE
   };
 };
 
@@ -67,7 +69,8 @@ export function PuzzleGenerator() {
           words: config.words,
           // Force new object creation for nested objects to ensure change detection
           gridStyle: { ...DEFAULT_GRID_STYLE, ...pageSettings[newPageSize.label]?.gridStyle },
-          highlightStyle: { ...DEFAULT_HIGHLIGHT_STYLE, ...pageSettings[newPageSize.label]?.highlightStyle }
+          highlightStyle: { ...DEFAULT_HIGHLIGHT_STYLE, ...pageSettings[newPageSize.label]?.highlightStyle },
+          checkboxStyle: { ...DEFAULT_CHECKBOX_STYLE, ...pageSettings[newPageSize.label]?.checkboxStyle }
         }
       : getInitialConfig(newPageSize);
 
@@ -110,6 +113,7 @@ export function PuzzleGenerator() {
           font: config.font,
           gridStyle: config.gridStyle,
           highlightStyle: config.highlightStyle,
+          checkboxStyle: config.checkboxStyle,
           directions: config.directions,
           allowBackwards: config.allowBackwards
         }
@@ -181,7 +185,8 @@ export function PuzzleGenerator() {
       gridSize: Math.max(findLongestWordLength(puzzle.words) + 1, newConfig.gridSize),
       font: newConfig.font,
       gridStyle: newConfig.gridStyle,
-      highlightStyle: newConfig.highlightStyle
+      highlightStyle: newConfig.highlightStyle,
+      checkboxStyle: newConfig.checkboxStyle
     }));
 
     // Update selected puzzle first if it exists
@@ -210,8 +215,8 @@ export function PuzzleGenerator() {
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="flex gap-6 h-screen p-6">
-        {/* Left side - Configuration (2/3 width) */}
-        <div className="w-2/3">
+        {/* Left side - Configuration */}
+        <div className="w-3/4">
           <div className="bg-white rounded-xl shadow-sm p-6 h-full">
             <h2 className="text-xl font-semibold text-gray-800 mb-6">Word Search Generator</h2>
             <ConfigPanel
@@ -231,8 +236,8 @@ export function PuzzleGenerator() {
           </div>
         </div>
 
-        {/* Right side - Preview (1/3 width) */}
-        <div className="w-1/3 flex flex-col">
+        {/* Right side - Preview */}
+        <div className="w-1/4 flex flex-col">
           {puzzles.length > 0 && (
             <>
               <div className="bg-white rounded-xl shadow-sm p-4 mb-6 flex items-center gap-4">

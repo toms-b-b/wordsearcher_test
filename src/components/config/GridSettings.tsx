@@ -12,14 +12,14 @@ interface GridSettingsProps {
   onGridSizeChange: (value: number) => void;
   onAllowBackwardsChange: (value: boolean) => void;
   onDirectionChange: (direction: Direction, checked: boolean) => void;
-  onGridStyleChange: (key: string, value: number | boolean) => void;
+  onGridStyleChange: (newStyle: GridStyle) => void;
 }
 
 export function GridSettings({
   gridSize,
   minGridSize,
   allowBackwards,
-  directions,
+  directions = BASE_DIRECTIONS,
   gridStyle,
   onGridSizeChange,
   onAllowBackwardsChange,
@@ -30,6 +30,13 @@ export function GridSettings({
     horizontal: 'blue',
     vertical: 'green',
     diagonal: 'amber'
+  };
+
+  const handleGridStyleChange = (key: keyof GridStyle, value: number | boolean) => {
+    onGridStyleChange({
+      ...gridStyle,
+      [key]: value,
+    });
   };
 
   return (
@@ -81,16 +88,43 @@ export function GridSettings({
                   <div>
                     <Toggle
                       key={direction}
-                      label={direction.charAt(0) + direction.slice(1).toLowerCase()}
+                      label={direction.charAt(0).toUpperCase() + direction.slice(1).toLowerCase()}
                       checked={directions.includes(direction)}
                       onChange={(checked) => onDirectionChange(direction, checked)}
-                      color={directionColors[direction as Direction]}
+                      color={directionColors[direction]}
                     />
                   </div>
                 </Tooltip>
               ))}
             </div>
           </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-semibold text-gray-700 mb-2">Grid Style</h3>
+        <div className="space-y-3">
+          <Tooltip content="Show or hide the outer border of the puzzle grid">
+            <div>
+              <Toggle
+                label="Show Outer Border"
+                checked={gridStyle.showOuterBorder}
+                onChange={(checked) => handleGridStyleChange('showOuterBorder', checked)}
+                color="purple"
+              />
+            </div>
+          </Tooltip>
+
+          <Tooltip content="Show or hide the borders between cells">
+            <div>
+              <Toggle
+                label="Show Cell Borders"
+                checked={gridStyle.showCellBorders}
+                onChange={(checked) => handleGridStyleChange('showCellBorders', checked)}
+                color="purple"
+              />
+            </div>
+          </Tooltip>
         </div>
       </div>
     </div>

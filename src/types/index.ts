@@ -29,6 +29,7 @@ export interface PageSize {
   width: number;
   height: number;
   label: string;
+  highlightThickness: number; // Added highlight thickness specific to page size
 }
 
 export interface FontOption {
@@ -51,6 +52,15 @@ export interface HighlightStyle {
   verticalPadding: number;
 }
 
+export type CheckboxShape = 'circle' | 'rectangle' | 'star';
+
+export interface CheckboxStyle {
+  shape: CheckboxShape;
+  thickness: number;
+  color: string;
+  size: number;
+}
+
 export interface PuzzleConfig {
   id: string;
   title: string;
@@ -65,6 +75,7 @@ export interface PuzzleConfig {
   font: FontOption;
   gridStyle: GridStyle;
   highlightStyle: HighlightStyle;
+  checkboxStyle: CheckboxStyle;
 }
 
 export interface CSVPuzzle {

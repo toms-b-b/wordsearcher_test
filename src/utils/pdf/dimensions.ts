@@ -13,7 +13,7 @@ export interface PDFDimensions {
 }
 
 export function calculatePDFDimensions(
-  doc: jsPDF,
+  _doc: jsPDF,
   puzzle: PuzzleConfig,
   gridSize: number
 ): PDFDimensions {
@@ -31,8 +31,8 @@ export function calculatePDFDimensions(
   const cellSize = maxGridWidth / gridSize;
   
   // Calculate vertical spacing
-  const titleStartY = marginInches + (puzzle.titleFontSize / 72);
-  const gridStartY = titleStartY + 0.5; // 0.5 inch gap after title
+  const gridStartY = marginInches + 1.5; // Start grid 1.5 inches from top
+  const titleStartY = marginInches + ((gridStartY - marginInches) / 2); // Center title between top margin and grid
   const gridHeightInches = gridSize * cellSize;
   const wordsStartY = gridStartY + gridHeightInches + 0.5; // 0.5 inch gap after grid
 
