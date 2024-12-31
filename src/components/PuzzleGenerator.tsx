@@ -74,10 +74,19 @@ export function PuzzleGenerator() {
     // Update config and force refresh immediately
     setConfig(newConfig);
     
-    // Use a timeout to ensure the config update has been processed
-    setTimeout(() => {
-      setRefreshKey(prev => prev + 1);
-    }, 0);
+    // Force immediate refresh
+    setRefreshKey(prev => prev + 1);
+
+    // Update puzzles with new page size
+    setPuzzles(prevPuzzles => 
+      prevPuzzles.map(puzzle => ({
+        ...puzzle,
+        pageSize: newPageSize,
+        fontSize: newConfig.fontSize,
+        wordBankFontSize: newConfig.wordBankFontSize,
+        titleFontSize: newConfig.titleFontSize
+      }))
+    );
   }, [pageSettings, config.id, config.title, config.words]);
 
   // Store settings whenever they change
