@@ -7,18 +7,36 @@ interface PuzzlePreviewProps {
   puzzle: PuzzleConfig;
   showSolution: boolean;
   className?: string;
+  refreshKey?: number;
 }
 
 export function PuzzlePreview({ 
   puzzle, 
   showSolution,
-  className = '' 
+  className = '',
+  refreshKey = 0
 }: PuzzlePreviewProps) {
   const [puzzleUrl, setPuzzleUrl] = useState<string>('');
   const [solutionUrl, setSolutionUrl] = useState<string>('');
 
   // Memoize the puzzle to detect actual changes
-  const memoizedPuzzle = useMemo(() => puzzle, [JSON.stringify(puzzle)]);
+  const memoizedPuzzle = useMemo(() => puzzle, [
+    puzzle.pageSize?.label,
+    puzzle.pageSize?.width,
+    puzzle.pageSize?.height,
+    puzzle.fontSize,
+    puzzle.wordBankFontSize,
+    puzzle.titleFontSize,
+    puzzle.font.value,
+    puzzle.gridSize,
+    puzzle.words.join(','),
+    puzzle.title,
+    puzzle.directions.join(','),
+    puzzle.allowBackwards,
+    JSON.stringify(puzzle.gridStyle),
+    JSON.stringify(puzzle.highlightStyle),
+    refreshKey
+  ]);
 
   const generatePreview = useCallback(async () => {
     try {

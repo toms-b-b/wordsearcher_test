@@ -1,5 +1,5 @@
 import { PageSize, FontOption } from '../types';
-import { MAX_GRID_SIZE } from './constants.ts';
+import { MAX_GRID_SIZE } from './default_constants';
 
 interface GridConstraints {
   maxGridSize: number;

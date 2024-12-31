@@ -1,5 +1,5 @@
 import React from 'react';
-import { PAGE_SIZES, FONT_OPTIONS } from '../../utils/constants';
+import { PAGE_SIZES, FONT_OPTIONS, DEFAULT_FONT } from '../../utils/default_constants';
 import { PageSize, FontOption } from '../../types';
 
 interface PageSettingsProps {
@@ -10,8 +10,8 @@ interface PageSettingsProps {
 }
 
 export function PageSettings({ 
-  pageSize, 
-  font, 
+  pageSize = PAGE_SIZES[0], 
+  font = DEFAULT_FONT, 
   onPageSizeChange, 
   onFontChange 
 }: PageSettingsProps) {
@@ -22,7 +22,7 @@ export function PageSettings({
         <div>
           <label className="block text-xs text-gray-600">Page Size</label>
           <select
-            value={pageSize.label}
+            value={pageSize?.label || PAGE_SIZES[0].label}
             onChange={onPageSizeChange}
             className="w-full text-sm p-1 border rounded"
           >
@@ -36,13 +36,13 @@ export function PageSettings({
         <div>
           <label className="block text-xs text-gray-600">Font</label>
           <select
-            value={font.value}
+            value={font?.value || DEFAULT_FONT.value}
             onChange={onFontChange}
             className="w-full text-sm p-1 border rounded"
           >
-            {FONT_OPTIONS.map((font) => (
-              <option key={font.value} value={font.value}>
-                {font.label}
+            {FONT_OPTIONS.map((fontOption) => (
+              <option key={fontOption.value} value={fontOption.value}>
+                {fontOption.label}
               </option>
             ))}
           </select>

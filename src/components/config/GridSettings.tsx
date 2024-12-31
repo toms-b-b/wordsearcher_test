@@ -1,5 +1,5 @@
-import { Direction } from '../../types';
-import { BASE_DIRECTIONS, MAX_GRID_SIZE } from '../../utils/constants';
+import { Direction, GridStyle } from '../../types';
+import { BASE_DIRECTIONS, MAX_GRID_SIZE } from '../../utils/default_constants';
 import { Toggle } from './Toggle';
 import { Tooltip } from '../common/Tooltip';
 
@@ -8,9 +8,11 @@ interface GridSettingsProps {
   minGridSize: number;
   allowBackwards: boolean;
   directions: Direction[];
+  gridStyle: GridStyle;
   onGridSizeChange: (value: number) => void;
   onAllowBackwardsChange: (value: boolean) => void;
   onDirectionChange: (direction: Direction, checked: boolean) => void;
+  onGridStyleChange: (key: string, value: number | boolean) => void;
 }
 
 export function GridSettings({
@@ -18,9 +20,11 @@ export function GridSettings({
   minGridSize,
   allowBackwards,
   directions,
+  gridStyle,
   onGridSizeChange,
   onAllowBackwardsChange,
   onDirectionChange,
+  onGridStyleChange,
 }: GridSettingsProps) {
   const directionColors: Record<Direction, 'purple' | 'blue' | 'green' | 'amber'> = {
     horizontal: 'blue',

@@ -5,7 +5,7 @@ import { PageSettings } from './config/PageSettings';
 import { FontSizes } from './config/FontSizes';
 import { GridSettings } from './config/GridSettings';
 import { HighlightSettings } from './config/HighlightSettings';
-import { PAGE_SIZES, FONT_OPTIONS } from '../utils/constants';
+import { PAGE_SIZES, FONT_OPTIONS, DEFAULT_FONT } from '../utils/default_constants';
 import { Toggle } from './config/Toggle';
 import { Tooltip } from './common/Tooltip';
 
@@ -16,6 +16,7 @@ interface ConfigPanelProps {
   handleFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handleDownload: () => void;
   puzzles: PuzzleConfig[];
+  handlePageSizeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
 export function ConfigPanel({
@@ -25,6 +26,7 @@ export function ConfigPanel({
   handleFileUpload,
   handleDownload,
   puzzles,
+  handlePageSizeChange,
 }: ConfigPanelProps) {
   const handleConfigChange = (key: keyof PuzzleConfig, value: any) => {
     setConfig({ [key]: value });
@@ -39,21 +41,12 @@ export function ConfigPanel({
     });
   };
 
-  const convertToRealValue = (displayValue: number): number => {
-    return (displayValue / 1000) + 0.01;
-  };
-
-  const convertToDisplayValue = (realValue: number): number => {
-    return (realValue - 0.01) * 1000;
-  };
-
   const handleHighlightStyleChange = (key: keyof HighlightStyle, value: string | number) => {
     setConfig({
-      ...config,
       highlightStyle: {
         ...config.highlightStyle,
-        [key]: value
-      }
+        [key]: value,
+      },
     });
   };
 
@@ -93,13 +86,12 @@ export function ConfigPanel({
 
       {/* Left Column: Page Settings and Grid Style */}
       <div className="space-y-4">
-        <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">Page Settings</h3>
+        <div>
           <PageSettings
             pageSize={config.pageSize}
             font={config.font}
-            onPageSizeChange={(e) => handleConfigChange('pageSize', PAGE_SIZES.find(size => size.label === e.target.value))}
-            onFontChange={(e) => handleConfigChange('font', FONT_OPTIONS.find(font => font.label === e.target.value))}
+            onPageSizeChange={handlePageSizeChange}
+            onFontChange={(e) => handleConfigChange('font', FONT_OPTIONS.find(f => f.value === e.target.value) || DEFAULT_FONT)}
           />
         </div>
 

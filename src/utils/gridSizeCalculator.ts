@@ -1,5 +1,5 @@
 import { CSVPuzzle } from '../types';
-import { MIN_GRID_SIZE } from './constants';
+import { MIN_GRID_SIZE } from './default_constants';
 
 export function findLongestWordLength(puzzles: CSVPuzzle[]): number {
   return Math.max(

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { PuzzleConfig } from '../types';
 import { parseCSV } from '../utils/csvParser';
 import { findLongestWordLength } from '../utils/wordUtils';
-import { DEFAULT_GRID_STYLE } from '../utils/constants';
+import { DEFAULT_GRID_STYLE } from '../utils/default_constants';
 
 export function useFileUpload(
   config: PuzzleConfig,

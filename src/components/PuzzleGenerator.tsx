@@ -1,40 +1,104 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { PuzzleConfig, CSVPuzzle } from '../types';
-import { BASE_DIRECTIONS } from '../types/direction';
 import { ConfigPanel } from './ConfigPanel';
 import { PuzzlePreview } from './PuzzlePreview';
 import { PuzzleSelector } from './PuzzleSelector';
 import { Toggle } from './config/Toggle';
 import { useFileUpload } from '../hooks/useFileUpload';
 import { useZipDownload } from '../hooks/useZipDownload';
-import { PAGE_SIZES, FONT_OPTIONS, DEFAULT_GRID_STYLE, DEFAULT_HIGHLIGHT_STYLE, MIN_GRID_SIZE } from '../utils/constants';
+import { 
+  DEFAULT_PAGE_SIZE, 
+  DEFAULT_FONT, 
+  DEFAULT_GRID_SIZE,
+  DEFAULT_GRID_STYLE,
+  DEFAULT_HIGHLIGHT_STYLE,
+  BASE_DIRECTIONS,
+  PAGE_SIZE_DEFAULTS,
+  PAGE_SIZES
+} from '../utils/default_constants';
 import { findLongestWordLength } from '../utils/wordUtils';
 import { parseCSV } from '../utils/csvParser';
-import { Tooltip } from './common/Tooltip'; // Import the Tooltip component
+import { Tooltip } from './common/Tooltip';
 
-const initialConfig: PuzzleConfig = {
-  id: `empty-${Date.now()}`,
-  title: 'Sample Puzzle',
-  words: ['HELLO', 'WORLD', 'PUZZLE', 'GAME'],
-  fontSize: 16,
-  wordBankFontSize: 14,
-  titleFontSize: 24,
-  pageSize: PAGE_SIZES[0],
-  directions: [...BASE_DIRECTIONS],
-  allowBackwards: false,
-  gridSize: MIN_GRID_SIZE,
-  font: FONT_OPTIONS[0],
-  gridStyle: DEFAULT_GRID_STYLE,
-  highlightStyle: DEFAULT_HIGHLIGHT_STYLE
+const getInitialConfig = (pageSize = DEFAULT_PAGE_SIZE): PuzzleConfig => {
+  // Type assertion to ensure we can safely index PAGE_SIZE_DEFAULTS
+  const pageSizeDefaults = PAGE_SIZE_DEFAULTS[pageSize.label as keyof typeof PAGE_SIZE_DEFAULTS];
+  
+  return {
+    id: `empty-${Date.now()}`,
+    title: 'Sample Puzzle',
+    words: ['HELLO', 'WORLD', 'PUZZLE', 'GAME'],
+    fontSize: pageSizeDefaults.puzzleFontSize,
+    wordBankFontSize: pageSizeDefaults.wordBankFontSize,
+    titleFontSize: pageSizeDefaults.titleFontSize,
+    pageSize,
+    directions: [...BASE_DIRECTIONS],
+    allowBackwards: false,
+    gridSize: DEFAULT_GRID_SIZE,
+    font: DEFAULT_FONT,
+    gridStyle: DEFAULT_GRID_STYLE,
+    highlightStyle: DEFAULT_HIGHLIGHT_STYLE
+  };
 };
 
 export function PuzzleGenerator() {
   const [puzzles, setPuzzles] = useState<PuzzleConfig[]>([]);
   const [selectedPuzzle, setSelectedPuzzle] = useState<PuzzleConfig | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [config, setConfig] = useState<PuzzleConfig>(initialConfig);
+  const [config, setConfig] = useState<PuzzleConfig>(getInitialConfig());
   const [showSolution, setShowSolution] = useState(false);
   const [uploadError, setUploadError] = useState<string>('');
+  
+  // Store settings for each page size
+  const [pageSettings, setPageSettings] = useState<Record<string, Partial<PuzzleConfig>>>({});
+
+  // Handle page size change with settings memory
+  const handlePageSizeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newPageSize = PAGE_SIZES.find(size => size.label === e.target.value) || DEFAULT_PAGE_SIZE;
+    
+    // Create a new config object to trigger a proper re-render
+    const newConfig = pageSettings[newPageSize.label] 
+      ? {
+          ...getInitialConfig(newPageSize),
+          ...pageSettings[newPageSize.label],
+          pageSize: newPageSize,
+          id: config.id,
+          title: config.title,
+          words: config.words,
+          // Force new object creation for nested objects to ensure change detection
+          gridStyle: { ...DEFAULT_GRID_STYLE, ...pageSettings[newPageSize.label]?.gridStyle },
+          highlightStyle: { ...DEFAULT_HIGHLIGHT_STYLE, ...pageSettings[newPageSize.label]?.highlightStyle }
+        }
+      : getInitialConfig(newPageSize);
+
+    // Update config and force refresh immediately
+    setConfig(newConfig);
+    
+    // Use a timeout to ensure the config update has been processed
+    setTimeout(() => {
+      setRefreshKey(prev => prev + 1);
+    }, 0);
+  }, [pageSettings, config.id, config.title, config.words]);
+
+  // Store settings whenever they change
+  useEffect(() => {
+    if (config.pageSize) {
+      setPageSettings(prev => ({
+        ...prev,
+        [config.pageSize.label]: {
+          fontSize: config.fontSize,
+          wordBankFontSize: config.wordBankFontSize,
+          titleFontSize: config.titleFontSize,
+          gridSize: config.gridSize,
+          font: config.font,
+          gridStyle: config.gridStyle,
+          highlightStyle: config.highlightStyle,
+          directions: config.directions,
+          allowBackwards: config.allowBackwards
+        }
+      }));
+    }
+  }, [config]);
 
   const handleFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -126,7 +190,7 @@ export function PuzzleGenerator() {
     }
   }, [puzzles, selectedPuzzle]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedPuzzle?.title) {
       const updatedPuzzle = puzzles.find(p => p.title === selectedPuzzle.title);
       if (updatedPuzzle) {
@@ -149,6 +213,7 @@ export function PuzzleGenerator() {
               handleFileUpload={handleFileUpload}
               handleDownload={handleDownloadClick}
               puzzles={puzzles}
+              handlePageSizeChange={handlePageSizeChange}
             />
             {(uploadError || uploadErrorHook) && (
               <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -194,6 +259,7 @@ export function PuzzleGenerator() {
                     key={refreshKey}
                     puzzle={selectedPuzzle}
                     showSolution={showSolution}
+                    refreshKey={refreshKey}
                     className="h-full"
                   />
                 </div>
