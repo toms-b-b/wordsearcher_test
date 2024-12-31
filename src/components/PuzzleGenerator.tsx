@@ -71,23 +71,31 @@ export function PuzzleGenerator() {
         }
       : getInitialConfig(newPageSize);
 
-    // Update config and force refresh immediately
+    // Update config
     setConfig(newConfig);
+
+    // Update puzzles with new page size and settings
+    const updatedPuzzles = puzzles.map(puzzle => ({
+      ...puzzle,
+      ...newConfig,
+      id: puzzle.id,
+      title: puzzle.title,
+      words: puzzle.words
+    }));
+    
+    setPuzzles(updatedPuzzles);
+
+    // Update selected puzzle if it exists
+    if (selectedPuzzle) {
+      const updatedSelectedPuzzle = updatedPuzzles.find(p => p.id === selectedPuzzle.id);
+      if (updatedSelectedPuzzle) {
+        setSelectedPuzzle(updatedSelectedPuzzle);
+      }
+    }
     
     // Force immediate refresh
     setRefreshKey(prev => prev + 1);
-
-    // Update puzzles with new page size
-    setPuzzles(prevPuzzles => 
-      prevPuzzles.map(puzzle => ({
-        ...puzzle,
-        pageSize: newPageSize,
-        fontSize: newConfig.fontSize,
-        wordBankFontSize: newConfig.wordBankFontSize,
-        titleFontSize: newConfig.titleFontSize
-      }))
-    );
-  }, [pageSettings, config.id, config.title, config.words]);
+  }, [pageSettings, config.id, config.title, config.words, puzzles, selectedPuzzle]);
 
   // Store settings whenever they change
   useEffect(() => {
@@ -198,15 +206,6 @@ export function PuzzleGenerator() {
       }
     }
   }, [puzzles, selectedPuzzle]);
-
-  useEffect(() => {
-    if (selectedPuzzle?.title) {
-      const updatedPuzzle = puzzles.find(p => p.title === selectedPuzzle.title);
-      if (updatedPuzzle) {
-        setSelectedPuzzle(updatedPuzzle);
-      }
-    }
-  }, [puzzles, selectedPuzzle?.title]);
 
   return (
     <div className="min-h-screen bg-gray-100">
